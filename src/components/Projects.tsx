@@ -26,9 +26,9 @@ const Projects: React.FC = () => {
       const viewportHeight = window.innerHeight;
       const elementPosition = projectsRef.current.getBoundingClientRect().top + window.scrollY;
       
-      // Start showing when the element is 40% of viewport height from bottom
-      const startShow = elementPosition - viewportHeight * 0.8;
-      const fullyVisible = elementPosition - viewportHeight * 0.4;
+      // Start showing when the element is 60% of viewport height from bottom (changed from 40%)
+      const startShow = elementPosition - viewportHeight * 0.9; // Changed from 0.8
+      const fullyVisible = elementPosition - viewportHeight * 0.6; // Changed from 0.4
       
       if (scrollPosition > startShow) {
         const opacity = (scrollPosition - startShow) / (fullyVisible - startShow);
