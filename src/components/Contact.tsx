@@ -1,49 +1,13 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 
 const Contact: React.FC = () => {
   const { toast } = useToast();
-  const [visible, setVisible] = useState(false);
-  const contactRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!contactRef.current) return;
-      
-      const scrollPosition = window.scrollY;
-      const viewportHeight = window.innerHeight;
-      const elementPosition = contactRef.current.getBoundingClientRect().top + window.scrollY;
-      
-      // Start showing when the element is 60% of viewport height from bottom (changed from 40%)
-      const startShow = elementPosition - viewportHeight * 0.9; // Changed from 0.8
-      const fullyVisible = elementPosition - viewportHeight * 0.6; // Changed from 0.4
-      
-      if (scrollPosition > startShow) {
-        const opacity = (scrollPosition - startShow) / (fullyVisible - startShow);
-        setVisible(true);
-        if (contactRef.current) {
-          contactRef.current.style.opacity = Math.min(1, opacity).toString();
-          contactRef.current.style.transform = `translateY(${Math.max(0, 20 - opacity * 20)}px)`;
-        }
-      } else {
-        setVisible(false);
-        if (contactRef.current) {
-          contactRef.current.style.opacity = '0';
-        }
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    // Trigger once on component mount to set initial state
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,13 +19,7 @@ const Contact: React.FC = () => {
 
   return (
     <section id="contact" className="py-16 md:py-24">
-      <div 
-        ref={contactRef}
-        className={cn(
-          "container mx-auto px-4 transition-all duration-700",
-          visible ? "opacity-100" : "opacity-0"
-        )}
-      >
+      <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Get In Touch</h2>
           <div className="w-20 h-1 bg-primary mx-auto"></div>
