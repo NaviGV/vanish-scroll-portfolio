@@ -44,7 +44,7 @@ const Hero: React.FC = () => {
   return (
     <section id="home" className="min-h-screen flex flex-col justify-center items-center relative pt-16 overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-center">
           <div 
             ref={profileRef} 
             className="profile-container mx-auto md:mx-0 md:ml-auto order-1 md:order-2 transition-all duration-500"
@@ -66,8 +66,8 @@ const Hero: React.FC = () => {
               <span>Hi, I'm </span>
               <span className="text-gradient">John Doe</span>
             </h1>
-            <h2 className="text-2xl md:text-3xl font-medium mb-6 text-muted-foreground">Software Developer</h2>
-            <p className="text-lg mb-8 max-w-lg mx-auto md:mx-0">
+            <h2 className="text-2xl md:text-3xl font-medium mb-4 text-muted-foreground">Software Developer</h2>
+            <p className="text-lg mb-6 max-w-lg mx-auto md:mx-0">
               Passionate about crafting clean, user-friendly web applications with cutting-edge technologies.
             </p>
             <div className="flex flex-wrap gap-4 justify-center md:justify-start">

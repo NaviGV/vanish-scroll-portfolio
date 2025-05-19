@@ -34,6 +34,13 @@
     --ring: 240 4.9% 83.9%;
     
     --radius: 0.5rem;
+    
+    --sidebar: 240 10% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 240 3.7% 15.9%;
+    --sidebar-accent: 263 90% 51%;
+    --sidebar-accent-foreground: 0 0% 98%;
   }
 }
 
@@ -62,6 +69,34 @@
 
   .text-gradient {
     @apply bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent;
+  }
+  
+  .animate-spin-slow {
+    animation: spin 8s linear infinite;
+  }
+  
+  .animate-pulse-gentle {
+    animation: pulse-gentle 4s ease-in-out infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-gentle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
   }
 }
 
@@ -100,4 +135,10 @@
   background: linear-gradient(135deg, rgba(138, 43, 226, 0.1), rgba(90, 0, 226, 0.05));
   top: -50px;
   left: -50px;
+}
+
+@media (max-width: 768px) {
+  .profile-circle-1, .profile-circle-2, .profile-circle-3 {
+    transform: scale(0.9);
+  }
 }
