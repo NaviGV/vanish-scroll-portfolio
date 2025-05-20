@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Education {
   institution: string;
@@ -25,6 +26,7 @@ interface UserProfile {
   skills: string[];
   education: Education[];
   resumeUrl: string;
+  profilePicture: string;
 }
 
 const ProfileEdit: React.FC = () => {
@@ -44,7 +46,8 @@ const ProfileEdit: React.FC = () => {
       degree: '',
       year: ''
     }],
-    resumeUrl: ''
+    resumeUrl: '',
+    profilePicture: ''
   });
   
   const [loading, setLoading] = useState(true);
@@ -82,7 +85,8 @@ const ProfileEdit: React.FC = () => {
             degree: '',
             year: ''
           }],
-          resumeUrl: data.resumeUrl || ''
+          resumeUrl: data.resumeUrl || '',
+          profilePicture: data.profilePicture || ''
         });
       } else {
         throw new Error('Failed to fetch profile');
@@ -215,6 +219,31 @@ const ProfileEdit: React.FC = () => {
       <form onSubmit={handleSubmit}>
         <Card className="mb-6">
           <CardHeader>
+            <CardTitle>Profile Picture</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col items-center space-y-4">
+              <Avatar className="w-32 h-32">
+                <AvatarImage src={profile.profilePicture} alt={profile.name} />
+                <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              
+              <div className="w-full">
+                <label htmlFor="profilePicture" className="text-sm font-medium block mb-1">Profile Picture URL</label>
+                <Input
+                  id="profilePicture"
+                  name="profilePicture"
+                  value={profile.profilePicture}
+                  onChange={handleInputChange}
+                  placeholder="https://example.com/profile.jpg"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="mb-6">
+          <CardHeader>
             <CardTitle>Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -324,7 +353,7 @@ const ProfileEdit: React.FC = () => {
             </div>
             
             <div>
-              <label htmlFor="resumeUrl" className="text-sm font-medium block mb-1">Resume URL (optional)</label>
+              <label htmlFor="resumeUrl" className="text-sm font-medium block mb-1">Resume URL</label>
               <Input
                 id="resumeUrl"
                 name="resumeUrl"

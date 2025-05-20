@@ -47,7 +47,7 @@ const Hero: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           <div 
             ref={profileRef} 
-            className="profile-container mx-auto md:mr-auto order-1 md:order-2 transition-all duration-500"
+            className="profile-container mx-auto md:mx-0 md:ml-auto order-1 md:order-2 transition-all duration-500"
           >
             <div className="dynamic-circle profile-circle-1 animate-spin-slow"></div>
             <div className="dynamic-circle profile-circle-2 animate-spin-slow animation-delay-200" style={{ animationDirection: 'reverse' }}></div>
@@ -61,7 +61,7 @@ const Hero: React.FC = () => {
             </div>
           </div>
           
-          <div className="text-center md:text-left order-2 md:order-1 space-y-4">
+          <div className="text-center md:text-left md:ml-4 order-2 md:order-1 space-y-4">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold break-words hyphens-auto">
               <span>Hi, I'm </span>
               <span className="text-gradient">John Doe</span>

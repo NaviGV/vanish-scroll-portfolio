@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface Project {
   _id: string;
@@ -140,12 +141,26 @@ const Projects: React.FC = () => {
                 
                 <CardHeader>
                   <CardTitle>{project.title}</CardTitle>
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="flex flex-wrap gap-2 mt-4">
                     {project.tags.slice(0, 3).map((tag, i) => (
                       <Badge key={i} variant="secondary" className="bg-primary/20 hover:bg-primary/30">{tag}</Badge>
                     ))}
+                    
                     {project.tags.length > 3 && (
-                      <Badge variant="outline">+{project.tags.length - 3}</Badge>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Badge variant="outline" className="cursor-pointer">
+                            +{project.tags.length - 3}
+                          </Badge>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-2">
+                          <div className="flex flex-wrap gap-2">
+                            {project.tags.slice(3).map((tag, i) => (
+                              <Badge key={i} variant="secondary" className="bg-primary/20">{tag}</Badge>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     )}
                   </div>
                 </CardHeader>

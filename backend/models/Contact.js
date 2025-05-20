@@ -23,6 +23,14 @@ const ContactSchema = new mongoose.Schema({
     enum: ['new', 'responded', 'completed'],
     default: 'new',
   },
+  notificationSent: {
+    type: Boolean,
+    default: false,
+  },
+  notificationEmail: {
+    type: String,
+    default: 'hello@example.com',
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Contact', ContactSchema);
