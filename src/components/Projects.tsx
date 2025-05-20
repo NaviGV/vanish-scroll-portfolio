@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface Project {
+  _id: string;
   title: string;
   description: string;
   image: string;
@@ -16,7 +17,27 @@ interface Project {
 
 const Projects: React.FC = () => {
   const [visible, setVisible] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
   const projectsRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/projects');
+        if (response.ok) {
+          const data = await response.json();
+          setProjects(data);
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProjects();
+  }, []);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -26,9 +47,9 @@ const Projects: React.FC = () => {
       const viewportHeight = window.innerHeight;
       const elementPosition = projectsRef.current.getBoundingClientRect().top + window.scrollY;
       
-      // Start showing when the element is 60% of viewport height from bottom (changed from 40%)
-      const startShow = elementPosition - viewportHeight * 0.9; // Changed from 0.8
-      const fullyVisible = elementPosition - viewportHeight * 0.6; // Changed from 0.4
+      // Start showing when the element is 60% of viewport height from bottom
+      const startShow = elementPosition - viewportHeight * 0.9;
+      const fullyVisible = elementPosition - viewportHeight * 0.6;
       
       if (scrollPosition > startShow) {
         const opacity = (scrollPosition - startShow) / (fullyVisible - startShow);
@@ -51,8 +72,10 @@ const Projects: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const projects: Project[] = [
+  // Fallback projects data
+  const fallbackProjects: Project[] = [
     {
+      _id: '1',
       title: "E-commerce Platform",
       description: "A full-stack e-commerce platform with product listings, shopping cart, and payment integration.",
       image: "https://images.unsplash.com/photo-1661956602868-6ae368943878?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -61,6 +84,7 @@ const Projects: React.FC = () => {
       codeLink: "#"
     },
     {
+      _id: '2',
       title: "Task Management App",
       description: "A responsive task management application with drag-and-drop functionality and user authentication.",
       image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -69,6 +93,7 @@ const Projects: React.FC = () => {
       codeLink: "#"
     },
     {
+      _id: '3',
       title: "Weather Dashboard",
       description: "An interactive weather dashboard that displays current and forecasted weather conditions.",
       image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2672&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -77,6 +102,8 @@ const Projects: React.FC = () => {
       codeLink: "#"
     }
   ];
+
+  const displayProjects = projects.length > 0 ? projects : fallbackProjects;
 
   return (
     <section id="projects" className="py-16 md:py-24 bg-secondary/30">
@@ -95,48 +122,54 @@ const Projects: React.FC = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
-            <Card key={index} className="overflow-hidden border border-primary/20 bg-secondary/50 hover:bg-secondary/80 transition-colors group">
-              <div className="h-48 overflow-hidden">
-                <img 
-                  src={project.image} 
-                  alt={project.title} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-              </div>
-              
-              <CardHeader>
-                <CardTitle>{project.title}</CardTitle>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {project.tags.slice(0, 3).map((tag, i) => (
-                    <Badge key={i} variant="secondary" className="bg-primary/20 hover:bg-primary/30">{tag}</Badge>
-                  ))}
-                  {project.tags.length > 3 && (
-                    <Badge variant="outline">+{project.tags.length - 3}</Badge>
-                  )}
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayProjects.map((project) => (
+              <Card key={project._id} className="overflow-hidden border border-primary/20 bg-secondary/50 hover:bg-secondary/80 transition-colors group">
+                <div className="h-48 overflow-hidden">
+                  <img 
+                    src={project.image} 
+                    alt={project.title} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                 </div>
-              </CardHeader>
-              
-              <CardContent>
-                <CardDescription className="text-foreground/70">{project.description}</CardDescription>
-              </CardContent>
-              
-              <CardFooter className="flex justify-between">
-                {project.liveLink && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={project.liveLink} target="_blank" rel="noopener noreferrer">Live Demo</a>
-                  </Button>
-                )}
-                {project.codeLink && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={project.codeLink} target="_blank" rel="noopener noreferrer">View Code</a>
-                  </Button>
-                )}
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+                
+                <CardHeader>
+                  <CardTitle>{project.title}</CardTitle>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {project.tags.slice(0, 3).map((tag, i) => (
+                      <Badge key={i} variant="secondary" className="bg-primary/20 hover:bg-primary/30">{tag}</Badge>
+                    ))}
+                    {project.tags.length > 3 && (
+                      <Badge variant="outline">+{project.tags.length - 3}</Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                
+                <CardContent>
+                  <CardDescription className="text-foreground/70">{project.description}</CardDescription>
+                </CardContent>
+                
+                <CardFooter className="flex justify-between">
+                  {project.liveLink && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={project.liveLink} target="_blank" rel="noopener noreferrer">Live Demo</a>
+                    </Button>
+                  )}
+                  {project.codeLink && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={project.codeLink} target="_blank" rel="noopener noreferrer">View Code</a>
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
