@@ -79,7 +79,7 @@ const Projects: React.FC = () => {
       _id: '1',
       title: "E-commerce Platform",
       description: "A full-stack e-commerce platform with product listings, shopping cart, and payment integration.",
-      image: "https://images.unsplash.com/photo-1661956602868-6ae368943878?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image: "https://images.unsplash.com/photo-1562280963-8a5475740a10?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       tags: ["React", "Node.js", "MongoDB", "Express", "Stripe"],
       liveLink: "#",
       codeLink: "#"
@@ -87,9 +87,9 @@ const Projects: React.FC = () => {
     {
       _id: '2',
       title: "Task Management App",
-      description: "A responsive task management application with drag-and-drop functionality and user authentication.",
-      image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tags: ["React", "TypeScript", "Firebase", "Tailwind CSS"],
+      description: "A responsive task management application with storage for YouTube and Twitter links.",
+      image: "https://images.unsplash.com/photo-1656278621776-6d0323cf4d39?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      tags: ["React", "TypeScript", "Firebase", "Tailwind CSS", "YouTube API", "Twitter API"],
       liveLink: "#",
       codeLink: "#"
     },
@@ -149,7 +149,7 @@ const Projects: React.FC = () => {
                     {project.tags.length > 3 && (
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Badge variant="outline" className="cursor-pointer">
+                          <Badge variant="outline" className="cursor-pointer hover:bg-primary/10">
                             +{project.tags.length - 3}
                           </Badge>
                         </PopoverTrigger>
