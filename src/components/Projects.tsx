@@ -1,10 +1,10 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import axios from 'axios';
 
 interface Project {
   _id: string;
@@ -20,16 +20,14 @@ const Projects: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openPopover, setOpenPopover] = useState<string | null>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/projects');
-        if (response.ok) {
-          const data = await response.json();
-          setProjects(data);
-        }
+        const response = await axios.get('http://localhost:5000/api/projects');
+        setProjects(response.data);
       } catch (error) {
         console.error('Error fetching projects:', error);
       } finally {
@@ -79,7 +77,7 @@ const Projects: React.FC = () => {
       _id: '1',
       title: "E-commerce Platform",
       description: "A full-stack e-commerce platform with product listings, shopping cart, and payment integration.",
-      image: "https://images.unsplash.com/photo-1562280963-8a5475740a10?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image: "https://images.unsplash.com/photo-1551232864-3f0890e580d9?q=80&w=2076&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       tags: ["React", "Node.js", "MongoDB", "Express", "Stripe"],
       liveLink: "#",
       codeLink: "#"
@@ -88,7 +86,7 @@ const Projects: React.FC = () => {
       _id: '2',
       title: "Task Management App",
       description: "A responsive task management application with storage for YouTube and Twitter links.",
-      image: "https://images.unsplash.com/photo-1656278621776-6d0323cf4d39?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image: "https://images.unsplash.com/photo-1579403124614-197f69d8187b?q=80&w=2564&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       tags: ["React", "TypeScript", "Firebase", "Tailwind CSS", "YouTube API", "Twitter API"],
       liveLink: "#",
       codeLink: "#"
@@ -105,6 +103,11 @@ const Projects: React.FC = () => {
   ];
 
   const displayProjects = projects.length > 0 ? projects : fallbackProjects;
+
+  // Toggle popover for a specific project
+  const togglePopover = (projectId: string) => {
+    setOpenPopover(openPopover === projectId ? null : projectId);
+  };
 
   return (
     <section id="projects" className="py-16 md:py-24 bg-secondary/30">
@@ -140,16 +143,23 @@ const Projects: React.FC = () => {
                 </div>
                 
                 <CardHeader>
-                  <CardTitle>{project.title}</CardTitle>
+                  <CardTitle className="mb-3">{project.title}</CardTitle>
                   <div className="flex flex-wrap gap-2 mt-4">
                     {project.tags.slice(0, 3).map((tag, i) => (
                       <Badge key={i} variant="secondary" className="bg-primary/20 hover:bg-primary/30">{tag}</Badge>
                     ))}
                     
                     {project.tags.length > 3 && (
-                      <Popover>
+                      <Popover 
+                        open={openPopover === project._id} 
+                        onOpenChange={() => togglePopover(project._id)}
+                      >
                         <PopoverTrigger asChild>
-                          <Badge variant="outline" className="cursor-pointer hover:bg-primary/10">
+                          <Badge 
+                            variant="outline" 
+                            className="cursor-pointer hover:bg-primary/10"
+                            onClick={() => togglePopover(project._id)}
+                          >
                             +{project.tags.length - 3}
                           </Badge>
                         </PopoverTrigger>

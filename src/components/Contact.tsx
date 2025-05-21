@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, MapPin } from 'lucide-react';
+import axios from 'axios';
 
 const Contact: React.FC = () => {
   const { toast } = useToast();
@@ -29,35 +29,26 @@ const Contact: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('http://localhost:5000/api/contacts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
+      await axios.post('http://localhost:5000/api/contacts', formData);
+      
+      toast({
+        title: "Message sent!",
+        description: "Thanks for reaching out. I'll get back to you soon.",
       });
       
-      if (response.ok) {
-        toast({
-          title: "Message sent!",
-          description: "Thanks for reaching out. I'll get back to you soon.",
-        });
-        
-        // Reset form
-        setFormData({
-          name: '',
-          email: '',
-          subject: '',
-          message: ''
-        });
-      } else {
-        const error = await response.json();
-        throw new Error(error.message || 'Something went wrong');
-      }
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send message",
+        description: axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to send message",
         variant: "destructive"
       });
     } finally {

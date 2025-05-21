@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,20 +6,29 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import axios from 'axios';
 
-const Admin: React.FC = () => {
+const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+  
+  useEffect(() => {
+    // Check if already logged in
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
-        username,
+      const response = await axios.post(`${backendUrl}/api/auth/login`, {
+        username, 
         password
       });
       
@@ -31,13 +40,13 @@ const Admin: React.FC = () => {
         description: "Welcome to the admin dashboard!"
       });
       
-      navigate('/admin/dashboard');
+      navigate('/dashboard');
     } catch (error) {
       toast({
         title: "Login failed",
         description: axios.isAxiosError(error) && error.response?.data?.message
           ? error.response.data.message
-          : "An error occurred",
+          : "Invalid credentials",
         variant: "destructive"
       });
     } finally {
@@ -48,7 +57,7 @@ const Admin: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <Card className="w-full max-w-md p-8 border border-primary/20">
-        <h1 className="text-3xl font-bold mb-6 text-center">Admin Login</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center">Portfolio Admin</h1>
         
         <form onSubmit={handleLogin}>
           <div className="space-y-4">
@@ -85,4 +94,4 @@ const Admin: React.FC = () => {
   );
 };
 
-export default Admin;
+export default Login;
