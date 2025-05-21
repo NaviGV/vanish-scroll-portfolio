@@ -12,21 +12,8 @@ dotenv.config();
 // Initialize express
 const app = express();
 
-// CORS configuration to allow requests from both frontend and admin
-const corsOptions = {
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:3000',
-    process.env.ADMIN_URL || 'http://localhost:3001',
-    // Allow local development
-    'http://localhost:5173',
-    'http://127.0.0.1:5173'
-  ],
-  credentials: true,
-  optionsSuccessStatus: 200
-};
-
 // Middleware
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
@@ -94,11 +81,6 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/profile', require('./routes/profile'));
-
-// Add health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'API is running' });
-});
 
 // Start server
 const PORT = process.env.PORT || 5000;

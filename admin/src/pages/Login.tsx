@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
@@ -13,6 +12,7 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
   
   useEffect(() => {
     // Check if already logged in
@@ -27,7 +27,7 @@ const Login: React.FC = () => {
     setLoading(true);
     
     try {
-      const response = await axios.post('/api/auth/login', {
+      const response = await axios.post(`${backendUrl}/api/auth/login`, {
         username, 
         password
       });
