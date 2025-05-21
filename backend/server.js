@@ -82,15 +82,6 @@ app.use('/api/projects', require('./routes/projects'));
 app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/profile', require('./routes/profile'));
 
-// Serve static assets in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../build')));
-  
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../build', 'index.html'));
-  });
-}
-
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
