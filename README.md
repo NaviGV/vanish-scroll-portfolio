@@ -1,73 +1,103 @@
-# Welcome to your Lovable project
 
-## Project info
+# Vanish Scroll Portfolio
 
-**URL**: https://lovable.dev/projects/0d748b01-68bf-4ffb-9d67-14e74409ab86
+A full-stack portfolio application with separate frontend, backend and admin interfaces.
 
-## How can I edit this code?
+## Project Structure
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/0d748b01-68bf-4ffb-9d67-14e74409ab86) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+vanish-scroll-portfolio/
+│
+├── backend/              # Node.js + Express + MongoDB
+│   ├── models/           # Database models
+│   ├── routes/           # API routes
+│   ├── middleware/       # Authentication middleware
+│   ├── .env.example      # Environment variables example
+│   └── server.js         # Main server file
+│
+├── frontend/             # Public portfolio website
+│   ├── public/           # Static assets
+│   ├── src/              # React components
+│   ├── .env.example      # Environment variables example
+│   └── index.html        # Main HTML file
+│
+├── admin/                # Admin dashboard interface
+│   ├── src/              # React admin components
+│   ├── .env.example      # Environment variables example
+│   └── index.html        # Admin HTML file
+│
+└── README.md             # Project documentation
 ```
 
-**Edit a file directly in GitHub**
+## Getting Started
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Prerequisites
 
-**Use GitHub Codespaces**
+- Node.js (v14 or later)
+- MongoDB database
+- npm or yarn
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Installation
 
-## What technologies are used for this project?
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd vanish-scroll-portfolio
+```
 
-This project is built with:
+2. Set up the backend:
+```bash
+cd backend
+cp .env.example .env
+# Edit .env with your MongoDB connection string and other config
+npm install
+npm start
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+3. Set up the frontend:
+```bash
+cd ../frontend
+cp .env.example .env
+# Edit .env with backend URL
+npm install
+npm start
+```
 
-## How can I deploy this project?
+4. Set up the admin dashboard:
+```bash
+cd ../admin
+cp .env.example .env
+# Edit .env with backend URL
+npm install
+npm start
+```
 
-Simply open [Lovable](https://lovable.dev/projects/0d748b01-68bf-4ffb-9d67-14e74409ab86) and click on Share -> Publish.
+## Features
 
-## Can I connect a custom domain to my Lovable project?
+- **Public Portfolio**
+  - Hero section
+  - About section
+  - Projects showcase
+  - Contact form
 
-Yes, you can!
+- **Admin Dashboard**
+  - Authentication system
+  - Manage contact messages (mark as responded/completed)
+  - Edit profile information
+  - Manage projects (add, edit, delete)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Environment Variables
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Backend (.env)
+- `MONGO_URI` - MongoDB connection string
+- `JWT_SECRET` - Secret for JWT tokens
+- `ADMIN_USERNAME` - Default admin username
+- `ADMIN_PASSWORD` - Default admin password
+- `PORT` - Server port (default: 5000)
+- `EMAIL_SERVICE` - Email service for contact notifications
+- `EMAIL_USER` - Email username
+- `EMAIL_PASSWORD` - Email password
+- `NOTIFICATION_EMAIL` - Email to receive notifications
+
+### Frontend/Admin (.env)
+- `VITE_BACKEND_URL` - URL to backend API (default: http://localhost:5000)

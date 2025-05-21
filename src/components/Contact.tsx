@@ -1,20 +1,59 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Mail, MapPin } from 'lucide-react';
+import axios from 'axios';
 
 const Contact: React.FC = () => {
   const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Message sent!",
-      description: "Thanks for reaching out. I'll get back to you soon.",
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value
     });
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      await axios.post('http://localhost:5000/api/contacts', formData);
+      
+      toast({
+        title: "Message sent!",
+        description: "Thanks for reaching out. I'll get back to you soon.",
+      });
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to send message",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -41,6 +80,8 @@ const Contact: React.FC = () => {
                     placeholder="Your name" 
                     required 
                     className="bg-secondary border-primary/20 focus:border-primary"
+                    value={formData.name}
+                    onChange={handleChange}
                   />
                 </div>
                 
@@ -52,6 +93,8 @@ const Contact: React.FC = () => {
                     placeholder="your.email@example.com" 
                     required
                     className="bg-secondary border-primary/20 focus:border-primary"
+                    value={formData.email}
+                    onChange={handleChange}
                   />
                 </div>
                 
@@ -62,6 +105,8 @@ const Contact: React.FC = () => {
                     placeholder="What's this about?" 
                     required
                     className="bg-secondary border-primary/20 focus:border-primary"
+                    value={formData.subject}
+                    onChange={handleChange}
                   />
                 </div>
                 
@@ -73,10 +118,14 @@ const Contact: React.FC = () => {
                     rows={5}
                     required
                     className="bg-secondary border-primary/20 focus:border-primary"
+                    value={formData.message}
+                    onChange={handleChange}
                   />
                 </div>
                 
-                <Button type="submit" className="w-full">Send Message</Button>
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                </Button>
               </div>
             </form>
           </Card>
@@ -87,9 +136,7 @@ const Contact: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-start">
                 <div className="bg-primary/20 p-3 rounded-lg mr-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
+                  <Mail className="h-6 w-6" />
                 </div>
                 <div>
                   <h4 className="text-lg font-medium mb-1">Email</h4>
@@ -99,9 +146,7 @@ const Contact: React.FC = () => {
               
               <div className="flex items-start">
                 <div className="bg-primary/20 p-3 rounded-lg mr-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-                  </svg>
+                  <MapPin className="h-6 w-6" />
                 </div>
                 <div>
                   <h4 className="text-lg font-medium mb-1">Location</h4>
