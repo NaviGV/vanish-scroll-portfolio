@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -29,7 +30,7 @@ const Contact: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      await axios.post('http://localhost:5000/api/contacts', formData);
+      await axios.post('/api/contacts', formData);
       
       toast({
         title: "Message sent!",
