@@ -3,6 +3,59 @@ const express = require('express');
 const Contact = require('../models/Contact');
 const auth = require('../middleware/auth');
 const router = express.Router();
+const nodemailer = require('nodemailer');
+
+// Configure email transporter
+const setupTransporter = () => {
+  try {
+    if (process.env.EMAIL_SERVICE && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+      return nodemailer.createTransport({
+        service: process.env.EMAIL_SERVICE,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD
+        }
+      });
+    }
+    return null;
+  } catch (error) {
+    console.error('Email setup error:', error);
+    return null;
+  }
+};
+
+// Send email notification
+const sendEmailNotification = async (contact) => {
+  try {
+    const transporter = setupTransporter();
+    if (!transporter) {
+      console.log('Email not configured, skipping notification');
+      return false;
+    }
+
+    const notificationEmail = process.env.NOTIFICATION_EMAIL || contact.notificationEmail;
+    
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: notificationEmail,
+      subject: `New Contact Form Submission: ${contact.subject}`,
+      html: `
+        <h1>New Contact Form Submission</h1>
+        <p><strong>From:</strong> ${contact.name} (${contact.email})</p>
+        <p><strong>Subject:</strong> ${contact.subject}</p>
+        <p><strong>Message:</strong></p>
+        <p>${contact.message.replace(/\n/g, '<br>')}</p>
+        <hr>
+        <p>You can manage this message in your admin dashboard.</p>
+      `
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Email sending error:', error);
+    return false;
+  }
+};
 
 // Submit contact message (public)
 router.post('/', async (req, res) => {
@@ -14,37 +67,16 @@ router.post('/', async (req, res) => {
       email,
       subject,
       message,
-      notificationEmail: process.env.NOTIFICATION_EMAIL || 'admin@example.com'
+      notificationEmail: process.env.NOTIFICATION_EMAIL || 'hello@example.com'
     });
     
     const savedContact = await newContact.save();
     
-    // Send email notification if transporter is configured
-    if (req.emailTransporter) {
-      try {
-        const notificationEmail = process.env.NOTIFICATION_EMAIL || 'admin@example.com';
-        
-        await req.emailTransporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: notificationEmail,
-          subject: `New Contact Form Submission: ${subject}`,
-          html: `
-            <h1>New Contact Form Submission</h1>
-            <p><strong>From:</strong> ${name} (${email})</p>
-            <p><strong>Subject:</strong> ${subject}</p>
-            <p><strong>Message:</strong></p>
-            <p>${message.replace(/\n/g, '<br>')}</p>
-            <hr>
-            <p>You can manage this message in your admin dashboard.</p>
-          `
-        });
-        
-        savedContact.notificationSent = true;
-        await savedContact.save();
-      } catch (emailError) {
-        console.error('Email sending error:', emailError);
-        // Continue even if email fails
-      }
+    // Send email notification
+    const emailSent = await sendEmailNotification(savedContact);
+    if (emailSent) {
+      savedContact.notificationSent = true;
+      await savedContact.save();
     }
     
     res.status(201).json({ message: 'Message sent successfully!' });
