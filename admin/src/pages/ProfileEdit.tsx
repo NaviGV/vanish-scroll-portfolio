@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import axios from 'axios';
 
 interface Education {
   institution: string;
@@ -62,36 +62,32 @@ const ProfileEdit: React.FC = () => {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${backendUrl}/api/auth/me`, {
+      const response = await axios.get(`${backendUrl}/api/auth/me`, {
         headers: {
           'x-auth-token': token || ''
         }
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        setProfile({
-          name: data.name || '',
-          email: data.email || '',
-          role: data.role || '',
-          location: data.location || '',
-          social: data.social || {
-            github: '',
-            twitter: '',
-            linkedin: ''
-          },
-          skills: data.skills || [],
-          education: data.education?.length > 0 ? data.education : [{
-            institution: '',
-            degree: '',
-            year: ''
-          }],
-          resumeUrl: data.resumeUrl || '',
-          profilePicture: data.profilePicture || ''
-        });
-      } else {
-        throw new Error('Failed to fetch profile');
-      }
+      const data = response.data;
+      setProfile({
+        name: data.name || '',
+        email: data.email || '',
+        role: data.role || '',
+        location: data.location || '',
+        social: data.social || {
+          github: '',
+          twitter: '',
+          linkedin: ''
+        },
+        skills: data.skills || [],
+        education: data.education?.length > 0 ? data.education : [{
+          institution: '',
+          degree: '',
+          year: ''
+        }],
+        resumeUrl: data.resumeUrl || '',
+        profilePicture: data.profilePicture || ''
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -177,23 +173,20 @@ const ProfileEdit: React.FC = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${backendUrl}/api/profile`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': token || ''
-        },
-        body: JSON.stringify(profile)
-      });
+      await axios.patch(
+        `${backendUrl}/api/profile`, 
+        profile,
+        {
+          headers: {
+            'x-auth-token': token || ''
+          }
+        }
+      );
       
-      if (response.ok) {
-        toast({
-          title: "Success",
-          description: "Profile updated successfully"
-        });
-      } else {
-        throw new Error('Failed to update profile');
-      }
+      toast({
+        title: "Success",
+        description: "Profile updated successfully"
+      });
     } catch (error) {
       toast({
         title: "Error",

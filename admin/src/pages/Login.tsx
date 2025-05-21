@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import axios from 'axios';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -27,33 +27,26 @@ const Login: React.FC = () => {
     setLoading(true);
     
     try {
-      const response = await fetch(`${backendUrl}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
+      const response = await axios.post(`${backendUrl}/api/auth/login`, {
+        username, 
+        password
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        toast({
-          title: "Login successful",
-          description: "Welcome to the admin dashboard!"
-        });
-        
-        navigate('/dashboard');
-      } else {
-        const error = await response.json();
-        throw new Error(error.message || 'Invalid credentials');
-      }
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      toast({
+        title: "Login successful",
+        description: "Welcome to the admin dashboard!"
+      });
+      
+      navigate('/dashboard');
     } catch (error) {
       toast({
         title: "Login failed",
-        description: error instanceof Error ? error.message : "An error occurred",
+        description: axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Invalid credentials",
         variant: "destructive"
       });
     } finally {

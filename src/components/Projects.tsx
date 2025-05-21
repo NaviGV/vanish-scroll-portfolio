@@ -1,10 +1,10 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import axios from 'axios';
 
 interface Project {
   _id: string;
@@ -26,11 +26,8 @@ const Projects: React.FC = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/projects');
-        if (response.ok) {
-          const data = await response.json();
-          setProjects(data);
-        }
+        const response = await axios.get('http://localhost:5000/api/projects');
+        setProjects(response.data);
       } catch (error) {
         console.error('Error fetching projects:', error);
       } finally {

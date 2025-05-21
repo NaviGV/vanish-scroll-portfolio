@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import axios from 'axios';
 
 interface Project {
   _id: string;
@@ -42,13 +42,8 @@ const ProjectsList: React.FC = () => {
   
   const fetchProjects = async () => {
     try {
-      const response = await fetch(`${backendUrl}/api/projects`);
-      if (response.ok) {
-        const data = await response.json();
-        setProjects(data);
-      } else {
-        throw new Error('Failed to fetch projects');
-      }
+      const response = await axios.get(`${backendUrl}/api/projects`);
+      setProjects(response.data);
     } catch (error) {
       toast({
         title: "Error",
@@ -72,35 +67,31 @@ const ProjectsList: React.FC = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${backendUrl}/api/projects`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': token || ''
-        },
-        body: JSON.stringify(newProject)
-      });
+      const response = await axios.post(
+        `${backendUrl}/api/projects`, 
+        newProject,
+        {
+          headers: {
+            'x-auth-token': token || ''
+          }
+        }
+      );
       
-      if (response.ok) {
-        const project = await response.json();
-        setProjects([...projects, project]);
-        setNewProject({
-          title: '',
-          description: '',
-          image: '',
-          tags: '',
-          liveLink: '',
-          codeLink: ''
-        });
-        setIsAddDialogOpen(false);
-        
-        toast({
-          title: "Success",
-          description: "Project added successfully"
-        });
-      } else {
-        throw new Error('Failed to add project');
-      }
+      setProjects([...projects, response.data]);
+      setNewProject({
+        title: '',
+        description: '',
+        image: '',
+        tags: '',
+        liveLink: '',
+        codeLink: ''
+      });
+      setIsAddDialogOpen(false);
+      
+      toast({
+        title: "Success",
+        description: "Project added successfully"
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -121,24 +112,19 @@ const ProjectsList: React.FC = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${backendUrl}/api/projects/${deleteProjectId}`, {
-        method: 'DELETE',
+      await axios.delete(`${backendUrl}/api/projects/${deleteProjectId}`, {
         headers: {
           'x-auth-token': token || ''
         }
       });
       
-      if (response.ok) {
-        setProjects(projects.filter(project => project._id !== deleteProjectId));
-        setDeleteProjectId(null);
-        
-        toast({
-          title: "Success",
-          description: "Project deleted successfully"
-        });
-      } else {
-        throw new Error('Failed to delete project');
-      }
+      setProjects(projects.filter(project => project._id !== deleteProjectId));
+      setDeleteProjectId(null);
+      
+      toast({
+        title: "Success",
+        description: "Project deleted successfully"
+      });
     } catch (error) {
       toast({
         title: "Error",

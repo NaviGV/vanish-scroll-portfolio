@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import axios from 'axios';
 
 interface ContactMessage {
   _id: string;
@@ -28,18 +28,13 @@ const ContactMessages: React.FC = () => {
   const fetchMessages = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${backendUrl}/api/contacts`, {
+      const response = await axios.get(`${backendUrl}/api/contacts`, {
         headers: {
           'x-auth-token': token || ''
         }
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data);
-      } else {
-        throw new Error('Failed to fetch messages');
-      }
+      setMessages(response.data);
     } catch (error) {
       toast({
         title: "Error",
@@ -54,28 +49,24 @@ const ContactMessages: React.FC = () => {
   const updateStatus = async (id: string, status: 'new' | 'responded' | 'completed') => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${backendUrl}/api/contacts/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': token || ''
-        },
-        body: JSON.stringify({ status })
-      });
+      await axios.patch(`${backendUrl}/api/contacts/${id}`, 
+        { status },
+        { 
+          headers: {
+            'x-auth-token': token || ''
+          }
+        }
+      );
       
-      if (response.ok) {
-        // Update local state
-        setMessages(messages.map(msg => 
-          msg._id === id ? { ...msg, status } : msg
-        ));
-        
-        toast({
-          title: "Status updated",
-          description: `Message marked as ${status}`
-        });
-      } else {
-        throw new Error('Failed to update status');
-      }
+      // Update local state
+      setMessages(messages.map(msg => 
+        msg._id === id ? { ...msg, status } : msg
+      ));
+      
+      toast({
+        title: "Status updated",
+        description: `Message marked as ${status}`
+      });
     } catch (error) {
       toast({
         title: "Error",
