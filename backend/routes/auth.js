@@ -2,6 +2,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const auth = require('../middleware/auth');
 const router = express.Router();
 
 // Login route
@@ -42,8 +43,8 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Get user profile
-router.get('/me', async (req, res) => {
+// Get user profile (auth required)
+router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {

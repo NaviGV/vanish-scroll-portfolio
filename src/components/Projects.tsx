@@ -80,7 +80,7 @@ const Projects: React.FC = () => {
       _id: '1',
       title: "E-commerce Platform",
       description: "A full-stack e-commerce platform with product listings, shopping cart, and payment integration.",
-      image: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image: "https://images.unsplash.com/photo-1551232864-3f0890e580d9?q=80&w=2076&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       tags: ["React", "Node.js", "MongoDB", "Express", "Stripe"],
       liveLink: "#",
       codeLink: "#"
@@ -89,7 +89,7 @@ const Projects: React.FC = () => {
       _id: '2',
       title: "Task Management App",
       description: "A responsive task management application with storage for YouTube and Twitter links.",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      image: "https://images.unsplash.com/photo-1579403124614-197f69d8187b?q=80&w=2564&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       tags: ["React", "TypeScript", "Firebase", "Tailwind CSS", "YouTube API", "Twitter API"],
       liveLink: "#",
       codeLink: "#"
@@ -146,8 +146,8 @@ const Projects: React.FC = () => {
                 </div>
                 
                 <CardHeader>
-                  <CardTitle>{project.title}</CardTitle>
-                  <div className="flex flex-wrap gap-2 mt-6">
+                  <CardTitle className="mb-3">{project.title}</CardTitle>
+                  <div className="flex flex-wrap gap-2 mt-4">
                     {project.tags.slice(0, 3).map((tag, i) => (
                       <Badge key={i} variant="secondary" className="bg-primary/20 hover:bg-primary/30">{tag}</Badge>
                     ))}

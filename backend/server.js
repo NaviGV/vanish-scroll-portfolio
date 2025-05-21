@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const nodemailer = require('nodemailer');
 
 // Load env variables
 dotenv.config();
@@ -51,6 +52,29 @@ const setupAdmin = async () => {
 };
 
 setupAdmin();
+
+// Configure email transporter
+let emailTransporter = null;
+try {
+  if (process.env.EMAIL_SERVICE && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+    emailTransporter = nodemailer.createTransport({
+      service: process.env.EMAIL_SERVICE,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
+      }
+    });
+    console.log('Email transporter configured');
+  }
+} catch (error) {
+  console.error('Email setup error:', error);
+}
+
+// Make email transporter available to routes
+app.use((req, res, next) => {
+  req.emailTransporter = emailTransporter;
+  next();
+});
 
 // Define routes
 app.use('/api/auth', require('./routes/auth'));
