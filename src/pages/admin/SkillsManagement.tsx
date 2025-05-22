@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Trash2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import axios from 'axios';
 
 interface Skill {
   _id: string;
@@ -18,24 +19,69 @@ const SkillsManagement: React.FC = () => {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [newSkill, setNewSkill] = useState({ name: '', level: 75 });
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{ name: string; } | null>(null);
+  const [nameColor, setNameColor] = useState<string>('#9b87f5'); // Default color
   const { toast } = useToast();
 
   useEffect(() => {
     fetchSkills();
+    fetchUserProfile();
   }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      const response = await axios.get('http://localhost:5000/api/profile/me', {
+        headers: {
+          'x-auth-token': token
+        }
+      });
+      
+      if (response.status === 200) {
+        setUser(response.data);
+        if (response.data.name) {
+          setNameColor(getColorFromName(response.data.name));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
+
+  const getColorFromName = (name: string): string => {
+    if (!name || name.length === 0) return '#9b87f5';
+    
+    // Get first letter and calculate a color based on it
+    const firstLetter = name.charAt(0).toUpperCase();
+    const letterPosition = firstLetter.charCodeAt(0) - 65; // A=0, B=1, etc.
+    
+    // Color palette - can be expanded
+    const colors = [
+      '#9b87f5', '#7E69AB', '#6E59A5', '#8B5CF6', '#D946EF', 
+      '#F97316', '#0EA5E9', '#10B981', '#F59E0B', '#EC4899',
+      '#06B6D4', '#8B5CF6', '#F43F5E', '#D946EF', '#14B8A6',
+      '#6366F1', '#F97316', '#8B5CF6', '#10B981', '#F59E0B',
+      '#EC4899', '#06B6D4', '#F43F5E', '#14B8A6', '#6366F1',
+      '#D946EF'
+    ];
+    
+    const colorIndex = letterPosition % colors.length;
+    return colors[colorIndex];
+  };
 
   const fetchSkills = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/skills', {
+      const response = await axios.get('http://localhost:5000/api/skills', {
         headers: {
           'x-auth-token': token || ''
         }
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setSkills(data);
+      if (response.status === 200) {
+        setSkills(response.data);
       } else {
         toast({
           title: "Error",
@@ -69,29 +115,27 @@ const SkillsManagement: React.FC = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/skills', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': token || ''
-        },
-        body: JSON.stringify({
+      const response = await axios.post('http://localhost:5000/api/skills', 
+        {
           name: newSkill.name,
           level: newSkill.level
-        })
-      });
+        },
+        {
+          headers: {
+            'x-auth-token': token || ''
+          }
+        }
+      );
 
-      if (response.ok) {
-        const data = await response.json();
-        setSkills([...skills, data]);
+      if (response.status === 201) {
+        setSkills([...skills, response.data]);
         setNewSkill({ name: '', level: 75 });
         toast({
           title: "Success",
           description: "Skill added successfully"
         });
       } else {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to add skill');
+        throw new Error('Failed to add skill');
       }
     } catch (error) {
       toast({
@@ -105,28 +149,27 @@ const SkillsManagement: React.FC = () => {
   const handleUpdateSkill = async (id: string, name: string, level: number) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/skills/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': token || ''
-        },
-        body: JSON.stringify({
+      const response = await axios.put(`http://localhost:5000/api/skills/${id}`,
+        {
           name,
           level
-        })
-      });
+        },
+        {
+          headers: {
+            'x-auth-token': token || ''
+          }
+        }
+      );
 
-      if (response.ok) {
-        const updatedSkill = await response.json();
+      if (response.status === 200) {
+        const updatedSkill = response.data;
         setSkills(skills.map(skill => skill._id === id ? updatedSkill : skill));
         toast({
           title: "Success",
           description: "Skill updated successfully"
         });
       } else {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to update skill');
+        throw new Error('Failed to update skill');
       }
     } catch (error) {
       toast({
@@ -140,22 +183,20 @@ const SkillsManagement: React.FC = () => {
   const handleDeleteSkill = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/skills/${id}`, {
-        method: 'DELETE',
+      const response = await axios.delete(`http://localhost:5000/api/skills/${id}`, {
         headers: {
           'x-auth-token': token || ''
         }
       });
 
-      if (response.ok) {
+      if (response.status === 200) {
         setSkills(skills.filter(skill => skill._id !== id));
         toast({
           title: "Success",
           description: "Skill deleted successfully"
         });
       } else {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to delete skill');
+        throw new Error('Failed to delete skill');
       }
     } catch (error) {
       toast({
@@ -213,6 +254,9 @@ const SkillsManagement: React.FC = () => {
                 step={1}
                 className="mb-4"
                 onValueChange={(value) => setNewSkill({ ...newSkill, level: value[0] })}
+                style={{
+                  '--slider-color': nameColor
+                } as React.CSSProperties}
               />
             </div>
             
@@ -271,6 +315,9 @@ const SkillsManagement: React.FC = () => {
                       step={1}
                       onValueChange={(value) => handleLevelChange(skill._id, value)}
                       onValueCommit={() => handleUpdateSkill(skill._id, skill.name, skill.level)}
+                      style={{
+                        '--slider-color': nameColor
+                      } as React.CSSProperties}
                     />
                   </div>
                 </div>

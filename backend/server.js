@@ -12,8 +12,14 @@ dotenv.config();
 // Initialize express
 const app = express();
 
+// Enhanced CORS configuration
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://your-production-domain.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
+}));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 
 // Serve uploaded files
@@ -59,6 +65,7 @@ setupAdmin();
 // Configure email transporter
 let emailTransporter = null;
 try {
+  // Check required email env variables
   if (process.env.EMAIL_SERVICE && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
     emailTransporter = nodemailer.createTransport({
       service: process.env.EMAIL_SERVICE,
@@ -67,7 +74,17 @@ try {
         pass: process.env.EMAIL_PASSWORD
       }
     });
-    console.log('Email transporter configured');
+    
+    // Verify transporter configuration
+    emailTransporter.verify(function(error, success) {
+      if (error) {
+        console.error('Email transporter verification failed:', error);
+      } else {
+        console.log('Email server is ready to send messages');
+      }
+    });
+  } else {
+    console.warn('Email configuration is incomplete. Email notifications will not work.');
   }
 } catch (error) {
   console.error('Email setup error:', error);
@@ -85,6 +102,11 @@ app.use('/api/projects', require('./routes/projects'));
 app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/skills', require('./routes/skills'));
+
+// Handle 404 for API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ message: 'API endpoint not found' });
+});
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {

@@ -9,6 +9,10 @@ router.post('/', async (req, res) => {
   try {
     const { name, email, subject, message } = req.body;
     
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+    
     const newContact = new Contact({
       name,
       email,
@@ -22,6 +26,7 @@ router.post('/', async (req, res) => {
     // Send email notification if transporter is configured
     if (req.emailTransporter) {
       try {
+        console.log('Attempting to send email notification');
         const notificationEmail = process.env.NOTIFICATION_EMAIL || 'admin@example.com';
         
         await req.emailTransporter.sendMail({
@@ -39,12 +44,15 @@ router.post('/', async (req, res) => {
           `
         });
         
+        console.log('Email notification sent successfully');
         savedContact.notificationSent = true;
         await savedContact.save();
       } catch (emailError) {
         console.error('Email sending error:', emailError);
         // Continue even if email fails
       }
+    } else {
+      console.warn('Email transporter not configured, skipping notification');
     }
     
     res.status(201).json({ message: 'Message sent successfully!' });

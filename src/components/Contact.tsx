@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, MapPin } from 'lucide-react';
+import axios from 'axios';
 
 const Contact: React.FC = () => {
   const { toast } = useToast();
@@ -29,15 +29,9 @@ const Contact: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('http://localhost:5000/api/contacts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await axios.post('http://localhost:5000/api/contacts', formData);
       
-      if (response.ok) {
+      if (response.status === 201) {
         toast({
           title: "Message sent!",
           description: "Thanks for reaching out. I'll get back to you soon.",
@@ -51,8 +45,7 @@ const Contact: React.FC = () => {
           message: ''
         });
       } else {
-        const error = await response.json();
-        throw new Error(error.message || 'Something went wrong');
+        throw new Error('Something went wrong');
       }
     } catch (error) {
       toast({

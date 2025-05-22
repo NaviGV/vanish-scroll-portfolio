@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import axios from 'axios';
 
 interface Project {
   _id: string;
@@ -41,10 +41,9 @@ const ProjectsList: React.FC = () => {
   
   const fetchProjects = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/projects');
-      if (response.ok) {
-        const data = await response.json();
-        setProjects(data);
+      const response = await axios.get('http://localhost:5000/api/projects');
+      if (response.status === 200) {
+        setProjects(response.data);
       } else {
         throw new Error('Failed to fetch projects');
       }
@@ -71,17 +70,17 @@ const ProjectsList: React.FC = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/projects', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': token || ''
-        },
-        body: JSON.stringify(newProject)
-      });
+      const response = await axios.post('http://localhost:5000/api/projects', 
+        newProject,
+        {
+          headers: {
+            'x-auth-token': token || ''
+          }
+        }
+      );
       
-      if (response.ok) {
-        const project = await response.json();
+      if (response.status === 201) {
+        const project = response.data;
         setProjects([...projects, project]);
         setNewProject({
           title: '',
@@ -120,14 +119,13 @@ const ProjectsList: React.FC = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/projects/${deleteProjectId}`, {
-        method: 'DELETE',
+      const response = await axios.delete(`http://localhost:5000/api/projects/${deleteProjectId}`, {
         headers: {
           'x-auth-token': token || ''
         }
       });
       
-      if (response.ok) {
+      if (response.status === 200) {
         setProjects(projects.filter(project => project._id !== deleteProjectId));
         setDeleteProjectId(null);
         
