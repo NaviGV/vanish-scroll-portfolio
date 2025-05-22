@@ -4,11 +4,21 @@ import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 
+interface ProfileData {
+  name: string;
+  role: string;
+  skills: { name: string; level: number }[];
+  education: { institution: string; degree: string; year: string }[];
+}
+
 const About: React.FC = () => {
   const [visible, setVisible] = useState(false);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
+    fetchProfileData();
+    
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       const viewportHeight = window.innerHeight;
@@ -36,9 +46,44 @@ const About: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  
+  const fetchProfileData = async () => {
+    try {
+      // Fetch admin user profile data for public display
+      const response = await fetch('http://localhost:5000/api/auth/me', {
+        headers: {
+          'x-auth-token': localStorage.getItem('token') || ''
+        }
+      });
+      
+      // If user is not logged in, use default data
+      if (!response.ok) {
+        return;
+      }
+      
+      const userData = await response.json();
+      
+      // Map skills to objects with name and level
+      const skillsWithLevels = userData.skills.map((skill: string, index: number) => {
+        // Generate a level between 65-95 for each skill
+        const level = Math.floor(65 + (Math.random() * 30));
+        return { name: skill, level };
+      });
+      
+      setProfile({
+        name: userData.name,
+        role: userData.role,
+        skills: skillsWithLevels,
+        education: userData.education || []
+      });
+      
+    } catch (error) {
+      console.error('Error fetching profile data:', error);
+    }
+  };
 
-  // Skill levels (values from 0-100)
-  const skillsWithLevels = [
+  // Fallback skill levels (values from 0-100)
+  const skillsWithLevels = profile?.skills || [
     { name: "React", level: 85 },
     { name: "TypeScript", level: 80 },
     { name: "JavaScript", level: 90 },
@@ -98,15 +143,26 @@ const About: React.FC = () => {
             
             <h3 className="text-2xl font-semibold mt-8 mb-4">Education</h3>
             <div className="space-y-4">
-              <div className="border-l-2 border-primary pl-4">
-                <h4 className="text-lg font-medium">Bachelor of Science in Computer Science</h4>
-                <p className="text-muted-foreground">University of Technology • 2019-2023</p>
-              </div>
-              
-              <div className="border-l-2 border-primary pl-4">
-                <h4 className="text-lg font-medium">Full Stack Web Development</h4>
-                <p className="text-muted-foreground">Tech Bootcamp • 2023</p>
-              </div>
+              {profile && profile.education && profile.education.length > 0 ? (
+                profile.education.map((edu, index) => (
+                  <div key={index} className="border-l-2 border-primary pl-4">
+                    <h4 className="text-lg font-medium">{edu.degree}</h4>
+                    <p className="text-muted-foreground">{edu.institution} • {edu.year}</p>
+                  </div>
+                ))
+              ) : (
+                <>
+                  <div className="border-l-2 border-primary pl-4">
+                    <h4 className="text-lg font-medium">Bachelor of Science in Computer Science</h4>
+                    <p className="text-muted-foreground">University of Technology • 2019-2023</p>
+                  </div>
+                  
+                  <div className="border-l-2 border-primary pl-4">
+                    <h4 className="text-lg font-medium">Full Stack Web Development</h4>
+                    <p className="text-muted-foreground">Tech Bootcamp • 2023</p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

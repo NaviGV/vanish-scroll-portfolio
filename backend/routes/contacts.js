@@ -89,4 +89,23 @@ router.patch('/:id', auth, async (req, res) => {
   }
 });
 
+// Toggle contact status between completed and new (auth required)
+router.patch('/:id/toggle-status', auth, async (req, res) => {
+  try {
+    const contact = await Contact.findById(req.params.id);
+    if (!contact) {
+      return res.status(404).json({ message: 'Contact not found' });
+    }
+    
+    // Toggle between completed and new
+    contact.status = contact.status === 'completed' ? 'new' : 'completed';
+    await contact.save();
+    
+    res.json(contact);
+  } catch (error) {
+    console.error('Toggle contact status error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

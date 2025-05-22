@@ -50,6 +50,40 @@ const ContactMessages: React.FC = () => {
     }
   };
 
+  const toggleStatus = async (id: string, currentStatus: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/contacts/${id}/toggle-status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        }
+      });
+      
+      if (response.ok) {
+        const updatedMessage = await response.json();
+        // Update local state
+        setMessages(messages.map(msg => 
+          msg._id === id ? updatedMessage : msg
+        ));
+        
+        toast({
+          title: "Status updated",
+          description: `Message marked as ${updatedMessage.status}`
+        });
+      } else {
+        throw new Error('Failed to update status');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Could not update message status",
+        variant: "destructive"
+      });
+    }
+  };
+
   const updateStatus = async (id: string, status: 'new' | 'responded' | 'completed') => {
     try {
       const token = localStorage.getItem('token');
@@ -133,7 +167,7 @@ const ContactMessages: React.FC = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <CardTitle>{message.subject}</CardTitle>
-                    <CardDescription className="mt-1">
+                    <CardDescription className="mt-2">
                       From: {message.name} ({message.email})
                     </CardDescription>
                   </div>
@@ -160,13 +194,11 @@ const ContactMessages: React.FC = () => {
                   </Button>
                 )}
                 
-                {message.status !== 'completed' && (
-                  <Button 
-                    onClick={() => updateStatus(message._id, 'completed')}
-                  >
-                    Mark as Completed
-                  </Button>
-                )}
+                <Button 
+                  onClick={() => toggleStatus(message._id, message.status)}
+                >
+                  {message.status === 'completed' ? 'Mark as Incomplete' : 'Mark as Completed'}
+                </Button>
               </CardFooter>
             </Card>
           ))}
