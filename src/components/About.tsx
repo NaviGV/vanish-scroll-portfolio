@@ -81,12 +81,10 @@ const About: React.FC = () => {
           
           <div>
             <h3 className="text-2xl font-semibold mb-6">My Skills</h3>
-            <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
               {skillsWithLevels.map((skill) => (
-                <div key={skill.name} className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="font-medium">{skill.name}</span>
-                  </div>
+                <div key={skill.name} className="space-y-1">
+                  <span className="text-sm font-medium">{skill.name}</span>
                   <Slider 
                     value={[skill.level]} 
                     max={100} 
