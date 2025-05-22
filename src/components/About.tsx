@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
 
 const About: React.FC = () => {
   const [visible, setVisible] = useState(false);
@@ -36,9 +37,18 @@ const About: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const skills = [
-    "React", "TypeScript", "JavaScript", "HTML", "CSS", 
-    "Tailwind CSS", "Node.js", "Express", "MongoDB", "Git"
+  // Skill levels (values from 0-100)
+  const skillsWithLevels = [
+    { name: "React", level: 85 },
+    { name: "TypeScript", level: 80 },
+    { name: "JavaScript", level: 90 },
+    { name: "HTML", level: 95 },
+    { name: "CSS", level: 85 },
+    { name: "Tailwind CSS", level: 80 },
+    { name: "Node.js", level: 75 },
+    { name: "Express", level: 70 },
+    { name: "MongoDB", level: 65 },
+    { name: "Git", level: 85 }
   ];
 
   return (
@@ -70,12 +80,21 @@ const About: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="text-2xl font-semibold mb-4">My Skills</h3>
-            <div className="flex flex-wrap gap-3">
-              {skills.map((skill, index) => (
-                <Card key={index} className="px-4 py-2 bg-secondary hover:bg-primary/20 transition-colors border-primary/20">
-                  {skill}
-                </Card>
+            <h3 className="text-2xl font-semibold mb-6">My Skills</h3>
+            <div className="space-y-4">
+              {skillsWithLevels.map((skill) => (
+                <div key={skill.name} className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="font-medium">{skill.name}</span>
+                  </div>
+                  <Slider 
+                    value={[skill.level]} 
+                    max={100} 
+                    step={1}
+                    className="cursor-default"
+                    disabled
+                  />
+                </div>
               ))}
             </div>
             
