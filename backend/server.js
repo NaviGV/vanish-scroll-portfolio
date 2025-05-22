@@ -84,6 +84,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/profile', require('./routes/profile'));
+app.use('/api/skills', require('./routes/skills'));
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {

@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
 
 interface ProfileData {
   name: string;
@@ -11,13 +10,21 @@ interface ProfileData {
   education: { institution: string; degree: string; year: string }[];
 }
 
+interface SkillData {
+  _id: string;
+  name: string;
+  level: number;
+}
+
 const About: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [skills, setSkills] = useState<SkillData[]>([]);
   const aboutRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     fetchProfileData();
+    fetchSkills();
     
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
@@ -63,17 +70,10 @@ const About: React.FC = () => {
       
       const userData = await response.json();
       
-      // Map skills to objects with name and level
-      const skillsWithLevels = userData.skills.map((skill: string, index: number) => {
-        // Generate a level between 65-95 for each skill
-        const level = Math.floor(65 + (Math.random() * 30));
-        return { name: skill, level };
-      });
-      
       setProfile({
         name: userData.name,
         role: userData.role,
-        skills: skillsWithLevels,
+        skills: [], // We'll use the skills API instead
         education: userData.education || []
       });
       
@@ -82,19 +82,87 @@ const About: React.FC = () => {
     }
   };
 
+  const fetchSkills = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/skills');
+      
+      if (response.ok) {
+        const skillsData = await response.json();
+        setSkills(skillsData);
+      } else {
+        // If there's an error or no data, use fallback skills
+        setSkills([]);
+      }
+    } catch (error) {
+      console.error('Error fetching skills:', error);
+      setSkills([]);
+    }
+  };
+
+  // Generate color based on first letter of name
+  const getColorFromName = (name: string): string => {
+    // Define a color palette
+    const colorPalette = [
+      '#8E9196', // Neutral Gray
+      '#9b87f5', // Primary Purple
+      '#7E69AB', // Secondary Purple 
+      '#6E59A5', // Tertiary Purple
+      '#1A1F2C', // Dark Purple
+      '#D6BCFA', // Light Purple
+      '#F2FCE2', // Soft Green
+      '#FEF7CD', // Soft Yellow
+      '#FEC6A1', // Soft Orange
+      '#E5DEFF', // Soft Purple
+      '#FFDEE2', // Soft Pink
+      '#FDE1D3', // Soft Peach
+      '#D3E4FD', // Soft Blue
+      '#F1F0FB', // Soft Gray
+      '#8B5CF6', // Vivid Purple
+      '#D946EF', // Magenta Pink
+      '#F97316', // Bright Orange
+      '#0EA5E9', // Ocean Blue
+      '#403E43', // Charcoal Gray
+      '#FFFFFF', // Pure White
+      '#8A898C', // Medium Gray
+      '#1EAEDB', // Bright Blue
+      '#221F26', // Dark Charcoal
+      '#C8C8C9', // Light Gray
+      '#9F9EA1', // Silver Gray
+      '#33C3F0', // Sky Blue
+    ];
+    
+    if (!name || name.length === 0) {
+      return colorPalette[0]; // Default to first color
+    }
+    
+    // Get first letter and convert to uppercase
+    const firstLetter = name.charAt(0).toUpperCase();
+    
+    // Convert letter to index (A=0, B=1, etc.)
+    const letterIndex = firstLetter.charCodeAt(0) - 65;
+    
+    // Ensure index is within bounds of color palette
+    const colorIndex = ((letterIndex % colorPalette.length) + colorPalette.length) % colorPalette.length;
+    
+    return colorPalette[colorIndex];
+  };
+
   // Fallback skill levels (values from 0-100)
-  const skillsWithLevels = profile?.skills || [
-    { name: "React", level: 85 },
-    { name: "TypeScript", level: 80 },
-    { name: "JavaScript", level: 90 },
-    { name: "HTML", level: 95 },
-    { name: "CSS", level: 85 },
-    { name: "Tailwind CSS", level: 80 },
-    { name: "Node.js", level: 75 },
-    { name: "Express", level: 70 },
-    { name: "MongoDB", level: 65 },
-    { name: "Git", level: 85 }
+  const skillsWithLevels = skills.length > 0 ? skills : [
+    { _id: "1", name: "React", level: 85 },
+    { _id: "2", name: "TypeScript", level: 80 },
+    { _id: "3", name: "JavaScript", level: 90 },
+    { _id: "4", name: "HTML", level: 95 },
+    { _id: "5", name: "CSS", level: 85 },
+    { _id: "6", name: "Tailwind CSS", level: 80 },
+    { _id: "7", name: "Node.js", level: 75 },
+    { _id: "8", name: "Express", level: 70 },
+    { _id: "9", name: "MongoDB", level: 65 },
+    { _id: "10", name: "Git", level: 85 }
   ];
+
+  // Get color based on user name
+  const skillColor = getColorFromName(profile?.name || 'Portfolio');
 
   return (
     <section id="about" className="py-16 md:py-24">
@@ -126,17 +194,19 @@ const About: React.FC = () => {
           
           <div>
             <h3 className="text-2xl font-semibold mb-6">My Skills</h3>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
               {skillsWithLevels.map((skill) => (
-                <div key={skill.name} className="space-y-1">
+                <div key={skill._id || skill.name} className="space-y-1">
                   <span className="text-sm font-medium">{skill.name}</span>
-                  <Slider 
-                    value={[skill.level]} 
-                    max={100} 
-                    step={1}
-                    className="cursor-default"
-                    disabled
-                  />
+                  <div className="h-2 w-full bg-secondary rounded-full">
+                    <div 
+                      className="h-2 rounded-full" 
+                      style={{ 
+                        width: `${skill.level}%`, 
+                        backgroundColor: skillColor 
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>

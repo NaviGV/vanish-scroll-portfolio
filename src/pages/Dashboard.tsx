@@ -45,12 +45,15 @@ const Dashboard: React.FC = () => {
       
       <main className="flex-grow container mx-auto p-4">
         <Tabs defaultValue="contacts" className="w-full">
-          <TabsList className="grid grid-cols-3 mb-8">
+          <TabsList className="grid grid-cols-4 mb-8">
             <TabsTrigger value="contacts" onClick={() => navigate('/admin/dashboard/contacts')}>
               Contact Messages
             </TabsTrigger>
             <TabsTrigger value="projects" onClick={() => navigate('/admin/dashboard/projects')}>
               Projects
+            </TabsTrigger>
+            <TabsTrigger value="skills" onClick={() => navigate('/admin/dashboard/skills')}>
+              My Skills
             </TabsTrigger>
             <TabsTrigger value="profile" onClick={() => navigate('/admin/dashboard/profile')}>
               My Profile
@@ -61,6 +64,9 @@ const Dashboard: React.FC = () => {
             <Outlet />
           </TabsContent>
           <TabsContent value="projects">
+            <Outlet />
+          </TabsContent>
+          <TabsContent value="skills">
             <Outlet />
           </TabsContent>
           <TabsContent value="profile">

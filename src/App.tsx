@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import ContactMessages from "./pages/admin/ContactMessages";
 import ProjectsList from "./pages/admin/ProjectsList";
 import ProfileEdit from "./pages/admin/ProfileEdit";
+import SkillsManagement from "./pages/admin/SkillsManagement";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -37,6 +38,7 @@ const App = () => {
                 <Route index element={<ContactMessages />} />
                 <Route path="contacts" element={<ContactMessages />} />
                 <Route path="projects" element={<ProjectsList />} />
+                <Route path="skills" element={<SkillsManagement />} />
                 <Route path="profile" element={<ProfileEdit />} />
               </Route>
               <Route path="*" element={<NotFound />} />
