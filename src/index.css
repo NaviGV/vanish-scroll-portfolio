@@ -142,3 +142,23 @@
     transform: scale(0.9);
   }
 }
+
+/* Animated gradient for skill sliders */
+.animated-gradient {
+  background: linear-gradient(270deg, #ff0080, #7928ca, #2afadf);
+  background-size: 600% 600%;
+  animation: gradientShift 8s ease infinite;
+}
+
+.animated-gradient-thumb {
+  background: linear-gradient(270deg, #ff0080, #7928ca, #2afadf);
+  background-size: 600% 600%;
+  animation: gradientShift 8s ease infinite;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const ext = path.extname(file.originalname);
-    cb(null, 'profile-' + uniqueSuffix + ext);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
   }
 });
 
@@ -27,14 +27,40 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: function (req, file, cb) {
-    const filetypes = /jpeg|jpg|png|gif/;
-    const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    
-    if (mimetype && extname) {
-      return cb(null, true);
+    if (file.fieldname === 'profileImage') {
+      const filetypes = /jpeg|jpg|png|gif/;
+      const mimetype = filetypes.test(file.mimetype);
+      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+      
+      if (mimetype && extname) {
+        return cb(null, true);
+      }
+      cb(new Error('Only image files are allowed!'));
+    } else if (file.fieldname === 'resumeFile') {
+      const filetypes = /pdf|doc|docx/;
+      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+      
+      if (extname) {
+        return cb(null, true);
+      }
+      cb(new Error('Only PDF, DOC, or DOCX files are allowed!'));
+    } else {
+      cb(new Error('Unexpected field'));
     }
-    cb(new Error('Only image files are allowed!'));
+  }
+});
+
+// Get current user's profile
+router.get('/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -93,6 +119,36 @@ router.post('/upload-image', auth, upload.single('profileImage'), async (req, re
     });
   } catch (error) {
     console.error('Profile picture upload error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Upload resume file
+router.post('/upload-resume', auth, upload.single('resumeFile'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    
+    // Get file path
+    const filePath = `/uploads/${req.file.filename}`;
+    const serverUrl = `${req.protocol}://${req.get('host')}`;
+    const fileUrl = `${serverUrl}${filePath}`;
+    
+    // Update user profile with new resume URL
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: { resumeUrl: fileUrl } },
+      { new: true }
+    ).select('-password');
+    
+    res.json({ 
+      message: 'Resume uploaded successfully',
+      resumeUrl: fileUrl,
+      user
+    });
+  } catch (error) {
+    console.error('Resume upload error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

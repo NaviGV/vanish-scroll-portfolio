@@ -138,16 +138,16 @@ const Projects: React.FC = () => {
                   />
                 </div>
                 
-                <CardHeader>
-                  <CardTitle className="mb-3">{project.title}</CardTitle>
-                  <div className="flex flex-wrap gap-2 mt-4">
+                <CardHeader className="h-[120px]">
+                  <CardTitle className="mb-3 h-[40px] overflow-hidden">{project.title}</CardTitle>
+                  <div className="flex flex-wrap gap-2 mt-4 h-[60px] overflow-hidden">
                     {project.tags.map((tag, i) => (
                       <Badge key={i} variant="secondary" className="bg-primary/20 hover:bg-primary/30">{tag}</Badge>
                     ))}
                   </div>
                 </CardHeader>
                 
-                <CardContent className="flex-grow">
+                <CardContent className="flex-grow h-[80px] overflow-hidden">
                   <CardDescription className="text-foreground/70">{project.description}</CardDescription>
                 </CardContent>
                 
