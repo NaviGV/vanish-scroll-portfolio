@@ -1,53 +1,30 @@
 
 const express = require('express');
-const router = express.Router();
-const auth = require('../middleware/auth');
 const User = require('../models/User');
+const auth = require('../middleware/auth');
+const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Configure storage for profile images
-const imageStorage = multer.diskStorage({
+// Configure storage for uploaded files
+const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '../uploads/images');
-    
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    const dir = path.join(__dirname, '../uploads');
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
-    
-    cb(null, uploadDir);
+    cb(null, dir);
   },
   filename: function (req, file, cb) {
-    // Use timestamp and original extension for unique filenames
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'profile-' + uniqueSuffix + path.extname(file.originalname));
+    const ext = path.extname(file.originalname);
+    cb(null, 'profile-' + uniqueSuffix + ext);
   }
 });
 
-// Configure storage for resume files
-const resumeStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '../uploads/resumes');
-    
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    // Use timestamp and original extension for unique filenames
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'resume-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-// Create upload instances
-const uploadImage = multer({ 
-  storage: imageStorage,
+const upload = multer({ 
+  storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: function (req, file, cb) {
     const filetypes = /jpeg|jpg|png|gif/;
@@ -61,108 +38,102 @@ const uploadImage = multer({
   }
 });
 
-const uploadResume = multer({ 
-  storage: resumeStorage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-  fileFilter: function (req, file, cb) {
-    const filetypes = /pdf|doc|docx/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    
-    if (extname) {
-      return cb(null, true);
-    }
-    cb(new Error('Only PDF, DOC, or DOCX files are allowed!'));
-  }
-});
-
-// Get current user's profile
-router.get('/me', auth, async (req, res) => {
+// Update user profile with text fields
+router.patch('/', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.json(user);
-  } catch (error) {
-    console.error('Get profile error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Update user profile
-router.put('/', auth, async (req, res) => {
-  try {
-    // Get profile fields to update
-    const { name, email, role, location, social, skills, education } = req.body;
+    const { name, email, role, location, social, skills, education, resumeUrl } = req.body;
     
-    // Build profile update object
-    const profileUpdateFields = {};
-    if (name) profileUpdateFields.name = name;
-    if (email) profileUpdateFields.email = email;
-    if (role) profileUpdateFields.role = role;
-    if (location) profileUpdateFields.location = location;
-    if (social) profileUpdateFields.social = social;
-    if (skills) profileUpdateFields.skills = skills;
-    if (education) profileUpdateFields.education = education;
+    // Fields to update
+    const profileFields = {};
+    if (name) profileFields.name = name;
+    if (email) profileFields.email = email;
+    if (role) profileFields.role = role;
+    if (location) profileFields.location = location;
+    if (social) profileFields.social = social;
+    if (skills) profileFields.skills = skills;
+    if (education) profileFields.education = education;
+    if (resumeUrl) profileFields.resumeUrl = resumeUrl;
     
-    // Update profile
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      { $set: profileUpdateFields },
-      { new: true, runValidators: true }
+    const user = await User.findByIdAndUpdate(
+      req.user.id, 
+      { $set: profileFields },
+      { new: true }
     ).select('-password');
     
-    res.json(updatedUser);
+    res.json(user);
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Upload profile image
-router.post('/upload-image', [auth, uploadImage.single('profileImage')], async (req, res) => {
+// Upload profile picture
+router.post('/upload-image', auth, upload.single('profileImage'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ message: 'No image file provided' });
+      return res.status(400).json({ message: 'No file uploaded' });
     }
     
-    // Generate file URL
-    const imageUrl = `/uploads/images/${req.file.filename}`;
+    // Get file path
+    const filePath = `/uploads/${req.file.filename}`;
+    const serverUrl = `${req.protocol}://${req.get('host')}`;
+    const fileUrl = `${serverUrl}${filePath}`;
     
     // Update user profile with new image URL
-    const updatedUser = await User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
       req.user.id,
-      { profilePicture: imageUrl },
+      { $set: { profilePicture: fileUrl } },
       { new: true }
     ).select('-password');
     
-    res.json(updatedUser);
+    res.json({ 
+      message: 'Profile picture uploaded successfully',
+      profilePicture: fileUrl,
+      user
+    });
   } catch (error) {
-    console.error('Upload profile image error:', error);
+    console.error('Profile picture upload error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Upload resume file
-router.post('/upload-resume', [auth, uploadResume.single('resume')], async (req, res) => {
+// Update user credentials
+router.patch('/credentials', auth, async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No resume file provided' });
+    const { username, currentPassword, newPassword } = req.body;
+    
+    // Find user
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
     
-    // Generate file URL
-    const resumeUrl = `/uploads/resumes/${req.file.filename}`;
+    // If changing password, verify current password
+    if (newPassword) {
+      const isMatch = await user.comparePassword(currentPassword);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Current password is incorrect' });
+      }
+      
+      user.password = newPassword;
+    }
     
-    // Update user profile with new resume URL
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      { resumeUrl: resumeUrl },
-      { new: true }
-    ).select('-password');
+    // Update username if provided
+    if (username && username !== user.username) {
+      // Check if username already exists
+      const usernameExists = await User.findOne({ username });
+      if (usernameExists) {
+        return res.status(400).json({ message: 'Username is already taken' });
+      }
+      
+      user.username = username;
+    }
     
-    res.json(updatedUser);
+    await user.save();
+    
+    res.json({ message: 'Credentials updated successfully' });
   } catch (error) {
-    console.error('Upload resume error:', error);
+    console.error('Update credentials error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

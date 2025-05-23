@@ -129,10 +129,7 @@ const Projects: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayProjects.map((project) => (
-              <Card 
-                key={project._id} 
-                className="overflow-hidden border border-primary/20 bg-secondary/50 hover:bg-secondary/80 transition-colors group flex flex-col h-full"
-              >
+              <Card key={project._id} className="overflow-hidden border border-primary/20 bg-secondary/50 hover:bg-secondary/80 transition-colors group flex flex-col h-full">
                 <div className="h-48 overflow-hidden">
                   <img 
                     src={project.image} 
@@ -141,34 +138,30 @@ const Projects: React.FC = () => {
                   />
                 </div>
                 
-                <CardHeader className="pb-2">
-                  <CardTitle className="mb-2">{project.title}</CardTitle>
-                  <div className="flex flex-wrap gap-1.5 mb-2 min-h-[32px]">
+                <CardHeader>
+                  <CardTitle className="mb-3">{project.title}</CardTitle>
+                  <div className="flex flex-wrap gap-2 mt-4">
                     {project.tags.map((tag, i) => (
-                      <Badge key={i} variant="secondary" className="bg-primary/20 hover:bg-primary/30 text-xs">{tag}</Badge>
+                      <Badge key={i} variant="secondary" className="bg-primary/20 hover:bg-primary/30">{tag}</Badge>
                     ))}
                   </div>
                 </CardHeader>
                 
-                <CardContent className="flex-grow pt-0">
-                  <CardDescription className="text-foreground/70 h-[4.5rem] overflow-hidden">
-                    {project.description}
-                  </CardDescription>
+                <CardContent className="flex-grow">
+                  <CardDescription className="text-foreground/70">{project.description}</CardDescription>
                 </CardContent>
                 
-                <CardFooter className="mt-auto pt-0">
-                  <div className="flex gap-2 w-full justify-between">
-                    {project.liveLink && (
-                      <Button variant="outline" size="sm" className="flex-1 bg-transparent border-primary/30 hover:bg-primary/10 transition-colors" asChild>
-                        <a href={project.liveLink} target="_blank" rel="noopener noreferrer">Live Demo</a>
-                      </Button>
-                    )}
-                    {project.codeLink && (
-                      <Button variant="outline" size="sm" className="flex-1 bg-transparent border-primary/30 hover:bg-primary/10 transition-colors" asChild>
-                        <a href={project.codeLink} target="_blank" rel="noopener noreferrer">View Code</a>
-                      </Button>
-                    )}
-                  </div>
+                <CardFooter className="flex justify-between mt-auto">
+                  {project.liveLink && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={project.liveLink} target="_blank" rel="noopener noreferrer">Live Demo</a>
+                    </Button>
+                  )}
+                  {project.codeLink && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={project.codeLink} target="_blank" rel="noopener noreferrer">View Code</a>
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             ))}

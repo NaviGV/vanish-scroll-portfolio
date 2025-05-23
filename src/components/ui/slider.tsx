@@ -11,9 +11,6 @@ const Slider = React.forwardRef<
   const sliderColor = props.style && '--slider-color' in props.style 
     ? String(props.style['--slider-color']) 
     : 'hsl(var(--primary))';
-    
-  // Determine if a gradient is being used
-  const isGradient = sliderColor.includes('gradient');
 
   return (
     <SliderPrimitive.Root
@@ -26,27 +23,15 @@ const Slider = React.forwardRef<
     >
       <SliderPrimitive.Track className="relative h-1 w-full grow overflow-hidden rounded-full bg-secondary">
         <SliderPrimitive.Range 
-          className={cn(
-            "absolute h-full rounded-full", 
-            isGradient && "animate-pulse-gentle"
-          )}
-          style={{ 
-            background: sliderColor,
-            backgroundSize: "200% auto",
-            animation: isGradient ? "gradient-shift 5s linear infinite" : "none",
-          }} 
+          className="absolute h-full rounded-full" 
+          style={{ backgroundColor: sliderColor }} 
         />
       </SliderPrimitive.Track>
       <SliderPrimitive.Thumb 
-        className={cn(
-          "block h-3 w-3 rounded-full border ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-100",
-          isGradient && "animate-pulse-gentle"
-        )}
+        className="block h-3 w-3 rounded-full border ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-100" 
         style={{ 
-          background: sliderColor,
-          borderColor: "transparent",
-          backgroundSize: isGradient ? "200% auto" : "auto",
-          animation: isGradient ? "gradient-shift 5s linear infinite" : "none",
+          backgroundColor: sliderColor,
+          borderColor: sliderColor
         }}
       />
     </SliderPrimitive.Root>

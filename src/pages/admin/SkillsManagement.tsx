@@ -51,40 +51,20 @@ const SkillsManagement: React.FC = () => {
   };
 
   const getColorFromName = (name: string): string => {
-    if (!name || name.length === 0) return 'linear-gradient(90deg, #9b87f5, #7E69AB)';
+    if (!name || name.length === 0) return '#9b87f5';
     
-    // Get first letter and calculate a base color
+    // Get first letter and calculate a color based on it
     const firstLetter = name.charAt(0).toUpperCase();
     const letterPosition = firstLetter.charCodeAt(0) - 65; // A=0, B=1, etc.
     
-    // Color palette with gradients
+    // Color palette - can be expanded
     const colors = [
-      'linear-gradient(90deg, #9b87f5, #7E69AB)',
-      'linear-gradient(90deg, #7E69AB, #6E59A5)',
-      'linear-gradient(90deg, #6E59A5, #8B5CF6)',
-      'linear-gradient(90deg, #8B5CF6, #D946EF)',
-      'linear-gradient(90deg, #D946EF, #F97316)',
-      'linear-gradient(90deg, #F97316, #0EA5E9)',
-      'linear-gradient(90deg, #0EA5E9, #10B981)',
-      'linear-gradient(90deg, #10B981, #F59E0B)',
-      'linear-gradient(90deg, #F59E0B, #EC4899)',
-      'linear-gradient(90deg, #EC4899, #06B6D4)',
-      'linear-gradient(90deg, #06B6D4, #8B5CF6)',
-      'linear-gradient(90deg, #8B5CF6, #F43F5E)',
-      'linear-gradient(90deg, #F43F5E, #D946EF)',
-      'linear-gradient(90deg, #D946EF, #14B8A6)',
-      'linear-gradient(90deg, #14B8A6, #6366F1)',
-      'linear-gradient(90deg, #6366F1, #F97316)',
-      'linear-gradient(90deg, #F97316, #8B5CF6)',
-      'linear-gradient(90deg, #8B5CF6, #10B981)',
-      'linear-gradient(90deg, #10B981, #F59E0B)',
-      'linear-gradient(90deg, #F59E0B, #EC4899)',
-      'linear-gradient(90deg, #EC4899, #06B6D4)',
-      'linear-gradient(90deg, #06B6D4, #F43F5E)',
-      'linear-gradient(90deg, #F43F5E, #14B8A6)',
-      'linear-gradient(90deg, #14B8A6, #6366F1)',
-      'linear-gradient(90deg, #6366F1, #D946EF)',
-      'linear-gradient(90deg, #D946EF, #9b87f5)'
+      '#9b87f5', '#7E69AB', '#6E59A5', '#8B5CF6', '#D946EF', 
+      '#F97316', '#0EA5E9', '#10B981', '#F59E0B', '#EC4899',
+      '#06B6D4', '#8B5CF6', '#F43F5E', '#D946EF', '#14B8A6',
+      '#6366F1', '#F97316', '#8B5CF6', '#10B981', '#F59E0B',
+      '#EC4899', '#06B6D4', '#F43F5E', '#14B8A6', '#6366F1',
+      '#D946EF'
     ];
     
     const colorIndex = letterPosition % colors.length;
