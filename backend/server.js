@@ -5,6 +5,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const nodemailer = require('nodemailer');
+const fs = require('fs');
 
 // Load env variables
 dotenv.config();
@@ -16,11 +17,31 @@ const app = express();
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:5173', 'https://your-production-domain.com'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
+  credentials: true
 }));
 
 // Middleware
 app.use(express.json());
+
+// Create necessary upload directories
+const setupUploadDirectories = () => {
+  const directories = [
+    path.join(__dirname, 'uploads'),
+    path.join(__dirname, 'uploads/images'),
+    path.join(__dirname, 'uploads/resumes')
+  ];
+  
+  directories.forEach(dir => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+      console.log(`Created directory: ${dir}`);
+    }
+  });
+};
+
+// Run setup for upload directories
+setupUploadDirectories();
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
