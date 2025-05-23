@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -254,9 +253,6 @@ const SkillsManagement: React.FC = () => {
                 step={1}
                 className="mb-4"
                 onValueChange={(value) => setNewSkill({ ...newSkill, level: value[0] })}
-                style={{
-                  '--slider-color': nameColor
-                } as React.CSSProperties}
               />
             </div>
             
@@ -273,9 +269,9 @@ const SkillsManagement: React.FC = () => {
           {skills.length === 0 ? (
             <p className="text-center text-muted-foreground py-4">No skills added yet</p>
           ) : (
-            <div className="space-y-6">
+            <div className="skills-container">
               {skills.map((skill) => (
-                <div key={skill._id} className="border p-4 rounded-md">
+                <div key={skill._id} className="skill-item border p-4 rounded-md">
                   <div className="flex items-center justify-between gap-4 mb-2">
                     <Input
                       value={skill.name}
@@ -315,9 +311,6 @@ const SkillsManagement: React.FC = () => {
                       step={1}
                       onValueChange={(value) => handleLevelChange(skill._id, value)}
                       onValueCommit={() => handleUpdateSkill(skill._id, skill.name, skill.level)}
-                      style={{
-                        '--slider-color': nameColor
-                      } as React.CSSProperties}
                     />
                   </div>
                 </div>

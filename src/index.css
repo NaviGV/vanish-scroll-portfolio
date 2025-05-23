@@ -78,6 +78,18 @@
   .animate-pulse-gentle {
     animation: pulse-gentle 4s ease-in-out infinite;
   }
+
+  /* Skills section specific classes */
+  .skills-container {
+    min-height: 220px; /* Space for 2 rows of skills */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .skill-item {
+    margin-bottom: 1rem;
+  }
 }
 
 @keyframes spin {
@@ -140,6 +152,10 @@
 @media (max-width: 768px) {
   .profile-circle-1, .profile-circle-2, .profile-circle-3 {
     transform: scale(0.9);
+  }
+
+  .skills-container {
+    grid-template-columns: 1fr;
   }
 }
 
