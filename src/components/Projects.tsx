@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -137,17 +138,17 @@ const Projects: React.FC = () => {
                   />
                 </div>
                 
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xl h-[40px] overflow-hidden text-ellipsis">{project.title}</CardTitle>
-                  <div className="flex flex-wrap gap-2 mt-3 min-h-[60px]">
+                <CardHeader className="h-[120px]">
+                  <CardTitle className="mb-3 h-[40px] overflow-hidden">{project.title}</CardTitle>
+                  <div className="flex flex-wrap gap-2 mt-4 h-[60px] overflow-hidden">
                     {project.tags.map((tag, i) => (
-                      <Badge key={i} variant="secondary" className="bg-primary/20 hover:bg-primary/30 mb-1">{tag}</Badge>
+                      <Badge key={i} variant="secondary" className="bg-primary/20 hover:bg-primary/30">{tag}</Badge>
                     ))}
                   </div>
                 </CardHeader>
                 
-                <CardContent className="pb-2">
-                  <CardDescription className="text-foreground/70 line-clamp-3 h-[60px] overflow-hidden">{project.description}</CardDescription>
+                <CardContent className="flex-grow h-[80px] overflow-hidden">
+                  <CardDescription className="text-foreground/70">{project.description}</CardDescription>
                 </CardContent>
                 
                 <CardFooter className="flex justify-between mt-auto">
