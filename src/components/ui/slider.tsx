@@ -26,9 +26,14 @@ const Slider = React.forwardRef<
     >
       <SliderPrimitive.Track className="relative h-1 w-full grow overflow-hidden rounded-full bg-secondary">
         <SliderPrimitive.Range 
-          className={cn("absolute h-full rounded-full", isGradient && "animate-pulse-gentle")}
+          className={cn(
+            "absolute h-full rounded-full", 
+            isGradient && "animate-pulse-gentle"
+          )}
           style={{ 
             background: sliderColor,
+            backgroundSize: "200% auto",
+            animation: isGradient ? "gradient-shift 5s linear infinite" : "none",
           }} 
         />
       </SliderPrimitive.Track>
@@ -39,7 +44,9 @@ const Slider = React.forwardRef<
         )}
         style={{ 
           background: sliderColor,
-          borderColor: sliderColor
+          borderColor: "transparent",
+          backgroundSize: isGradient ? "200% auto" : "auto",
+          animation: isGradient ? "gradient-shift 5s linear infinite" : "none",
         }}
       />
     </SliderPrimitive.Root>

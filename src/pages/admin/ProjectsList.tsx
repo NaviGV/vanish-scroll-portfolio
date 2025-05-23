@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -254,7 +255,7 @@ const ProjectsList: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {projects.length > 0 ? (
           projects.map((project) => (
-            <Card key={project._id} className="border border-primary/10">
+            <Card key={project._id} className="border border-primary/10 flex flex-col h-full">
               <div className="h-48 overflow-hidden">
                 <img 
                   src={project.image} 
@@ -263,29 +264,29 @@ const ProjectsList: React.FC = () => {
                 />
               </div>
               
-              <CardHeader>
+              <CardHeader className="pb-2">
                 <CardTitle>{project.title}</CardTitle>
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2 min-h-[32px]">
                   {project.tags.map((tag, i) => (
                     <Badge key={i} variant="secondary" className="bg-primary/20">{tag}</Badge>
                   ))}
                 </div>
               </CardHeader>
               
-              <CardContent>
-                <CardDescription className="text-foreground/70">{project.description}</CardDescription>
+              <CardContent className="pt-0 flex-grow">
+                <CardDescription className="text-foreground/70 h-[4.5rem] overflow-hidden">{project.description}</CardDescription>
               </CardContent>
               
-              <CardFooter className="flex justify-between">
+              <CardFooter className="flex justify-between pt-0 mt-auto">
                 <div className="flex space-x-2">
                   {project.liveLink && (
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" className="bg-transparent border-primary/30 hover:bg-primary/10" asChild>
                       <a href={project.liveLink} target="_blank" rel="noopener noreferrer">Live Demo</a>
                     </Button>
                   )}
                   
                   {project.codeLink && (
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" className="bg-transparent border-primary/30 hover:bg-primary/10" asChild>
                       <a href={project.codeLink} target="_blank" rel="noopener noreferrer">View Code</a>
                     </Button>
                   )}
