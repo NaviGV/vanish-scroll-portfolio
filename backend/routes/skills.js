@@ -5,6 +5,17 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');
 const router = express.Router();
 
+// Get public skills (no auth required)
+router.get('/public', async (req, res) => {
+  try {
+    const skills = await Skill.find().sort({ name: 1 });
+    res.json(skills);
+  } catch (error) {
+    console.error('Get public skills error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Get all skills for authenticated user
 router.get('/', auth, async (req, res) => {
   try {

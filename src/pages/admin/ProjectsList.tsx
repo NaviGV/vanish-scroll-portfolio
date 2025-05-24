@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Edit, Trash2 } from "lucide-react";
 import axios from 'axios';
 
 interface Project {
@@ -30,9 +32,21 @@ const ProjectsList: React.FC = () => {
     liveLink: '',
     codeLink: ''
   });
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    description: '',
+    image: '',
+    tags: '',
+    liveLink: '',
+    codeLink: ''
+  });
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -64,14 +78,54 @@ const ProjectsList: React.FC = () => {
       [e.target.name]: e.target.value
     });
   };
+
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setEditFormData({
+      ...editFormData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+    }
+  };
+
+  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEditImageFile(file);
+    }
+  };
   
   const handleAddProject = async () => {
     setIsSubmitting(true);
     
     try {
       const token = localStorage.getItem('token');
+      let projectData = { ...newProject };
+
+      // Handle image upload if file is selected
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('projectImage', imageFile);
+        
+        const uploadResponse = await axios.post('http://localhost:5000/api/projects/upload-image', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'x-auth-token': token || ''
+          }
+        });
+        
+        if (uploadResponse.data.imageUrl) {
+          projectData.image = uploadResponse.data.imageUrl;
+        }
+      }
+      
       const response = await axios.post('http://localhost:5000/api/projects', 
-        newProject,
+        projectData,
         {
           headers: {
             'x-auth-token': token || ''
@@ -90,6 +144,7 @@ const ProjectsList: React.FC = () => {
           liveLink: '',
           codeLink: ''
         });
+        setImageFile(null);
         setIsAddDialogOpen(false);
         
         toast({
@@ -103,6 +158,79 @@ const ProjectsList: React.FC = () => {
       toast({
         title: "Error",
         description: "Could not add project",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project);
+    setEditFormData({
+      title: project.title,
+      description: project.description,
+      image: project.image,
+      tags: project.tags.join(', '),
+      liveLink: project.liveLink || '',
+      codeLink: project.codeLink || ''
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateProject = async () => {
+    if (!editingProject) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      let updateData = { ...editFormData };
+
+      // Handle image upload if file is selected
+      if (editImageFile) {
+        const formData = new FormData();
+        formData.append('projectImage', editImageFile);
+        
+        const uploadResponse = await axios.post('http://localhost:5000/api/projects/upload-image', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'x-auth-token': token || ''
+          }
+        });
+        
+        if (uploadResponse.data.imageUrl) {
+          updateData.image = uploadResponse.data.imageUrl;
+        }
+      }
+      
+      const response = await axios.put(`http://localhost:5000/api/projects/${editingProject._id}`, 
+        updateData,
+        {
+          headers: {
+            'x-auth-token': token || ''
+          }
+        }
+      );
+      
+      if (response.status === 200) {
+        const updatedProject = response.data;
+        setProjects(projects.map(p => p._id === editingProject._id ? updatedProject : p));
+        setIsEditDialogOpen(false);
+        setEditingProject(null);
+        setEditImageFile(null);
+        
+        toast({
+          title: "Success",
+          description: "Project updated successfully"
+        });
+      } else {
+        throw new Error('Failed to update project');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Could not update project",
         variant: "destructive"
       });
     } finally {
@@ -202,7 +330,16 @@ const ProjectsList: React.FC = () => {
                   value={newProject.image} 
                   onChange={handleInputChange} 
                   placeholder="https://example.com/image.jpg"
-                  required 
+                />
+              </div>
+
+              <div>
+                <label htmlFor="imageFile" className="text-sm font-medium block mb-1">Or Upload Image</label>
+                <Input 
+                  id="imageFile" 
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
                 />
               </div>
               
@@ -260,6 +397,9 @@ const ProjectsList: React.FC = () => {
                   src={project.image} 
                   alt={project.title} 
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/400x200?text=Image+Not+Found';
+                  }}
                 />
               </div>
               
@@ -291,13 +431,23 @@ const ProjectsList: React.FC = () => {
                   )}
                 </div>
                 
-                <Button 
-                  variant="destructive" 
-                  size="sm" 
-                  onClick={() => confirmDeleteProject(project._id)}
-                >
-                  Delete
-                </Button>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleEditProject(project)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    onClick={() => confirmDeleteProject(project._id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardFooter>
             </Card>
           ))
@@ -311,6 +461,105 @@ const ProjectsList: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Edit Project Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>Edit Project</DialogTitle>
+            <DialogDescription>
+              Update project information.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div>
+              <label htmlFor="editTitle" className="text-sm font-medium block mb-1">Title</label>
+              <Input 
+                id="editTitle" 
+                name="title" 
+                value={editFormData.title} 
+                onChange={handleEditInputChange} 
+                placeholder="Project Title"
+                required 
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="editDescription" className="text-sm font-medium block mb-1">Description</label>
+              <Textarea 
+                id="editDescription" 
+                name="description" 
+                value={editFormData.description} 
+                onChange={handleEditInputChange} 
+                placeholder="Project description..."
+                required 
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="editImage" className="text-sm font-medium block mb-1">Image URL</label>
+              <Input 
+                id="editImage" 
+                name="image" 
+                value={editFormData.image} 
+                onChange={handleEditInputChange} 
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="editImageFile" className="text-sm font-medium block mb-1">Or Upload New Image</label>
+              <Input 
+                id="editImageFile" 
+                type="file"
+                accept="image/*"
+                onChange={handleEditImageChange}
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="editTags" className="text-sm font-medium block mb-1">Tags (comma-separated)</label>
+              <Input 
+                id="editTags" 
+                name="tags" 
+                value={editFormData.tags} 
+                onChange={handleEditInputChange} 
+                placeholder="React, TypeScript, Tailwind CSS"
+                required 
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="editLiveLink" className="text-sm font-medium block mb-1">Live Demo URL (optional)</label>
+              <Input 
+                id="editLiveLink" 
+                name="liveLink" 
+                value={editFormData.liveLink} 
+                onChange={handleEditInputChange} 
+                placeholder="https://example.com" 
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="editCodeLink" className="text-sm font-medium block mb-1">Code Repository URL (optional)</label>
+              <Input 
+                id="editCodeLink" 
+                name="codeLink" 
+                value={editFormData.codeLink} 
+                onChange={handleEditInputChange} 
+                placeholder="https://github.com/username/repo" 
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button onClick={handleUpdateProject} disabled={isSubmitting}>
+              {isSubmitting ? 'Updating...' : 'Update Project'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteProjectId} onOpenChange={() => setDeleteProjectId(null)}>

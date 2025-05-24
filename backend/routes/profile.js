@@ -50,6 +50,20 @@ const upload = multer({
   }
 });
 
+// Get public profile (no auth required)
+router.get('/public', async (req, res) => {
+  try {
+    const user = await User.findOne().select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'Profile not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Get public profile error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Get current user's profile
 router.get('/me', auth, async (req, res) => {
   try {

@@ -70,6 +70,10 @@
   .text-gradient {
     @apply bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent;
   }
+
+  .john-doe-gradient {
+    background: linear-gradient(90deg, #9333ea, #3b82f6);
+  }
   
   .animate-spin-slow {
     animation: spin 8s linear infinite;
@@ -159,28 +163,18 @@
   }
 }
 
-/* Animated gradient for skill sliders */
+/* Static gradient for skill sliders - matching John Doe theme */
 .animated-gradient {
-  background: linear-gradient(270deg, #ff0080, #7928ca, #2afadf);
-  background-size: 600% 600%;
-  animation: gradientShift 8s ease infinite;
+  background: linear-gradient(90deg, #9333ea, #3b82f6);
 }
 
 .animated-gradient-thumb {
-  background: linear-gradient(270deg, #ff0080, #7928ca, #2afadf);
-  background-size: 600% 600%;
-  animation: gradientShift 8s ease infinite;
+  background: linear-gradient(90deg, #9333ea, #3b82f6);
   border-color: rgba(255, 255, 255, 0.8);
   box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Additional styles for slider browser compatibility */
+/* Slider styles for admin panel */
 input[type="range"] {
   -webkit-appearance: none;
   width: 100%;
@@ -189,18 +183,14 @@ input[type="range"] {
 
 input[type="range"]::-webkit-slider-runnable-track {
   height: 8px;
-  background: linear-gradient(270deg, #ff0080, #7928ca, #2afadf);
-  background-size: 600% 600%;
+  background: linear-gradient(90deg, #9333ea, #3b82f6);
   border-radius: 4px;
-  animation: gradientShift 8s ease infinite;
 }
 
 input[type="range"]::-moz-range-track {
   height: 8px;
-  background: linear-gradient(270deg, #ff0080, #7928ca, #2afadf);
-  background-size: 600% 600%;
+  background: linear-gradient(90deg, #9333ea, #3b82f6);
   border-radius: 4px;
-  animation: gradientShift 8s ease infinite;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -208,9 +198,7 @@ input[type="range"]::-webkit-slider-thumb {
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background: linear-gradient(270deg, #ff0080, #7928ca, #2afadf);
-  background-size: 600% 600%;
-  animation: gradientShift 8s ease infinite;
+  background: linear-gradient(90deg, #9333ea, #3b82f6);
   margin-top: -6px;
   cursor: pointer;
   border: 2px solid white;
@@ -220,9 +208,7 @@ input[type="range"]::-moz-range-thumb {
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background: linear-gradient(270deg, #ff0080, #7928ca, #2afadf);
-  background-size: 600% 600%;
-  animation: gradientShift 8s ease infinite;
+  background: linear-gradient(90deg, #9333ea, #3b82f6);
   cursor: pointer;
   border: 2px solid white;
 }
