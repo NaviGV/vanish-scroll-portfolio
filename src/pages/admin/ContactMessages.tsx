@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import axios from 'axios';
 
 interface ContactMessage {
   _id: string;
@@ -28,14 +27,15 @@ const ContactMessages: React.FC = () => {
   const fetchMessages = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/contacts', {
+      const response = await fetch('http://localhost:5000/api/contacts', {
         headers: {
           'x-auth-token': token || ''
         }
       });
       
-      if (response.status === 200) {
-        setMessages(response.data);
+      if (response.ok) {
+        const data = await response.json();
+        setMessages(data);
       } else {
         throw new Error('Failed to fetch messages');
       }
@@ -50,20 +50,54 @@ const ContactMessages: React.FC = () => {
     }
   };
 
+  const toggleStatus = async (id: string, currentStatus: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/contacts/${id}/toggle-status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        }
+      });
+      
+      if (response.ok) {
+        const updatedMessage = await response.json();
+        // Update local state
+        setMessages(messages.map(msg => 
+          msg._id === id ? updatedMessage : msg
+        ));
+        
+        toast({
+          title: "Status updated",
+          description: `Message marked as ${updatedMessage.status}`
+        });
+      } else {
+        throw new Error('Failed to update status');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Could not update message status",
+        variant: "destructive"
+      });
+    }
+  };
+
   const updateStatus = async (id: string, status: 'new' | 'responded' | 'completed') => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.patch(`http://localhost:5000/api/contacts/${id}`, 
-        { status },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-auth-token': token || ''
-          }
-        }
-      );
+      const response = await fetch(`http://localhost:5000/api/contacts/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        },
+        body: JSON.stringify({ status })
+      });
       
-      if (response.status === 200) {
+      if (response.ok) {
+        // Update local state
         setMessages(messages.map(msg => 
           msg._id === id ? { ...msg, status } : msg
         ));
@@ -132,11 +166,10 @@ const ContactMessages: React.FC = () => {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-lg font-semibold mb-2">{message.subject}</CardTitle>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <div><span className="font-medium">Name:</span> {message.name}</div>
-                      <div><span className="font-medium">Email:</span> {message.email}</div>
-                    </div>
+                    <CardTitle>{message.subject}</CardTitle>
+                    <CardDescription className="mt-2">
+                      From: {message.name} ({message.email})
+                    </CardDescription>
                   </div>
                   <div className="flex flex-col items-end">
                     {getStatusBadge(message.status)}
@@ -148,44 +181,24 @@ const ContactMessages: React.FC = () => {
               </CardHeader>
               
               <CardContent>
-                <div className="bg-muted/30 p-4 rounded-md">
-                  <p className="whitespace-pre-wrap">{message.message}</p>
-                </div>
+                <p className="whitespace-pre-wrap">{message.message}</p>
               </CardContent>
               
               <CardFooter className="flex justify-end space-x-2">
-                {message.status === 'new' && (
-                  <>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => updateStatus(message._id, 'responded')}
-                    >
-                      Mark as Responded
-                    </Button>
-                    <Button 
-                      onClick={() => updateStatus(message._id, 'completed')}
-                    >
-                      Mark as Completed
-                    </Button>
-                  </>
-                )}
-                
-                {message.status === 'responded' && (
+                {message.status !== 'responded' && (
                   <Button 
-                    onClick={() => updateStatus(message._id, 'completed')}
-                  >
-                    Mark as Completed
-                  </Button>
-                )}
-                
-                {message.status === 'completed' && (
-                  <Button 
-                    variant="outline"
+                    variant="outline" 
                     onClick={() => updateStatus(message._id, 'responded')}
                   >
-                    Mark as Incomplete
+                    Mark as Responded
                   </Button>
                 )}
+                
+                <Button 
+                  onClick={() => toggleStatus(message._id, message.status)}
+                >
+                  {message.status === 'completed' ? 'Mark as Incomplete' : 'Mark as Completed'}
+                </Button>
               </CardFooter>
             </Card>
           ))}
