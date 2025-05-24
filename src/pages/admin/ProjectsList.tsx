@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,7 +31,15 @@ const ProjectsList: React.FC = () => {
     liveLink: '',
     codeLink: ''
   });
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editingProject, setEditingProject] = useState<{
+    _id: string;
+    title: string;
+    description: string;
+    image: string;
+    tags: string;
+    liveLink?: string;
+    codeLink?: string;
+  } | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -173,7 +180,7 @@ const ProjectsList: React.FC = () => {
       const projectData = {
         ...editingProject,
         image: imageUrl,
-        tags: typeof editingProject.tags === 'string' ? editingProject.tags : editingProject.tags.join(', ')
+        tags: editingProject.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
       };
       
       const response = await axios.put(`http://localhost:5000/api/projects/${editingProject._id}`, 
@@ -211,8 +218,13 @@ const ProjectsList: React.FC = () => {
 
   const openEditDialog = (project: Project) => {
     setEditingProject({
-      ...project,
-      tags: Array.isArray(project.tags) ? project.tags.join(', ') : project.tags
+      _id: project._id,
+      title: project.title,
+      description: project.description,
+      image: project.image,
+      tags: Array.isArray(project.tags) ? project.tags.join(', ') : project.tags,
+      liveLink: project.liveLink,
+      codeLink: project.codeLink
     });
     setImageFile(null);
     setIsEditDialogOpen(true);
