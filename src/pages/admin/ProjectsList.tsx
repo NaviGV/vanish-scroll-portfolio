@@ -212,7 +212,7 @@ const ProjectsList: React.FC = () => {
   const openEditDialog = (project: Project) => {
     setEditingProject({
       ...project,
-      tags: project.tags.join(', ')
+      tags: Array.isArray(project.tags) ? project.tags.join(', ') : project.tags
     });
     setImageFile(null);
     setIsEditDialogOpen(true);
