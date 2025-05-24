@@ -20,8 +20,8 @@ const ContactSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['new', 'responded', 'completed'],
-    default: 'new',
+    enum: ['pending', 'responded', 'completed'],
+    default: 'pending',
   },
   notificationSent: {
     type: Boolean,
@@ -29,7 +29,7 @@ const ContactSchema = new mongoose.Schema({
   },
   notificationEmail: {
     type: String,
-    default: 'hello@example.com',
+    default: 'admin@example.com',
   }
 }, { timestamps: true });
 

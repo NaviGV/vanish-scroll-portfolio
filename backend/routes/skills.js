@@ -1,4 +1,3 @@
-
 const express = require('express');
 const Skill = require('../models/Skill');
 const User = require('../models/User');
@@ -77,4 +76,19 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
-module.exports = router;
+// Get all skills for public display (no auth required)
+router.get('/public', async (req, res) => {
+  try {
+    // Get the admin user's skills
+    const adminUser = await User.findOne({ username: process.env.ADMIN_USERNAME || 'admin' });
+    if (!adminUser) {
+      return res.json([]);
+    }
+    
+    const skills = await Skill.find({ user: adminUser._id }).sort({ name: 1 });
+    res.json(skills);
+  } catch (error) {
+    console.error('Get public skills error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});

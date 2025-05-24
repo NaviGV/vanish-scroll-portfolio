@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -18,57 +19,11 @@ const SkillsManagement: React.FC = () => {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [newSkill, setNewSkill] = useState({ name: '', level: 75 });
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<{ name: string; } | null>(null);
-  const [nameColor, setNameColor] = useState<string>('#9b87f5'); // Default color
   const { toast } = useToast();
 
   useEffect(() => {
     fetchSkills();
-    fetchUserProfile();
   }, []);
-
-  const fetchUserProfile = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-      
-      const response = await axios.get('http://localhost:5000/api/profile/me', {
-        headers: {
-          'x-auth-token': token
-        }
-      });
-      
-      if (response.status === 200) {
-        setUser(response.data);
-        if (response.data.name) {
-          setNameColor(getColorFromName(response.data.name));
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-  };
-
-  const getColorFromName = (name: string): string => {
-    if (!name || name.length === 0) return '#9b87f5';
-    
-    // Get first letter and calculate a color based on it
-    const firstLetter = name.charAt(0).toUpperCase();
-    const letterPosition = firstLetter.charCodeAt(0) - 65; // A=0, B=1, etc.
-    
-    // Color palette - can be expanded
-    const colors = [
-      '#9b87f5', '#7E69AB', '#6E59A5', '#8B5CF6', '#D946EF', 
-      '#F97316', '#0EA5E9', '#10B981', '#F59E0B', '#EC4899',
-      '#06B6D4', '#8B5CF6', '#F43F5E', '#D946EF', '#14B8A6',
-      '#6366F1', '#F97316', '#8B5CF6', '#10B981', '#F59E0B',
-      '#EC4899', '#06B6D4', '#F43F5E', '#14B8A6', '#6366F1',
-      '#D946EF'
-    ];
-    
-    const colorIndex = letterPosition % colors.length;
-    return colors[colorIndex];
-  };
 
   const fetchSkills = async () => {
     try {
@@ -81,12 +36,6 @@ const SkillsManagement: React.FC = () => {
 
       if (response.status === 200) {
         setSkills(response.data);
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to fetch skills",
-          variant: "destructive"
-        });
       }
     } catch (error) {
       console.error('Fetch skills error:', error);
@@ -133,13 +82,11 @@ const SkillsManagement: React.FC = () => {
           title: "Success",
           description: "Skill added successfully"
         });
-      } else {
-        throw new Error('Failed to add skill');
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to add skill",
+        description: "Failed to add skill",
         variant: "destructive"
       });
     }
@@ -167,13 +114,11 @@ const SkillsManagement: React.FC = () => {
           title: "Success",
           description: "Skill updated successfully"
         });
-      } else {
-        throw new Error('Failed to update skill');
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update skill",
+        description: "Failed to update skill",
         variant: "destructive"
       });
     }
@@ -194,13 +139,11 @@ const SkillsManagement: React.FC = () => {
           title: "Success",
           description: "Skill deleted successfully"
         });
-      } else {
-        throw new Error('Failed to delete skill');
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete skill",
+        description: "Failed to delete skill",
         variant: "destructive"
       });
     }
@@ -245,15 +188,17 @@ const SkillsManagement: React.FC = () => {
               <label htmlFor="skillLevel" className="text-sm font-medium block mb-1">
                 Proficiency Level: {newSkill.level}%
               </label>
-              <Slider
-                id="skillLevel"
-                value={[newSkill.level]}
-                min={0}
-                max={100}
-                step={1}
-                className="mb-4"
-                onValueChange={(value) => setNewSkill({ ...newSkill, level: value[0] })}
-              />
+              <div className="skill-slider-container">
+                <Slider
+                  id="skillLevel"
+                  value={[newSkill.level]}
+                  min={0}
+                  max={100}
+                  step={1}
+                  className="mb-4 john-doe-slider"
+                  onValueChange={(value) => setNewSkill({ ...newSkill, level: value[0] })}
+                />
+              </div>
             </div>
             
             <Button type="submit">Add Skill</Button>
@@ -304,14 +249,17 @@ const SkillsManagement: React.FC = () => {
                     <span className="text-sm text-muted-foreground block mb-1">
                       Proficiency Level: {skill.level}%
                     </span>
-                    <Slider
-                      value={[skill.level]}
-                      min={0}
-                      max={100}
-                      step={1}
-                      onValueChange={(value) => handleLevelChange(skill._id, value)}
-                      onValueCommit={() => handleUpdateSkill(skill._id, skill.name, skill.level)}
-                    />
+                    <div className="skill-slider-container">
+                      <Slider
+                        value={[skill.level]}
+                        min={0}
+                        max={100}
+                        step={1}
+                        className="john-doe-slider"
+                        onValueChange={(value) => handleLevelChange(skill._id, value)}
+                        onValueCommit={() => handleUpdateSkill(skill._id, skill.name, skill.level)}
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
