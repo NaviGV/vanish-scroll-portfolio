@@ -1,3 +1,4 @@
+
 const express = require('express');
 const Skill = require('../models/Skill');
 const User = require('../models/User');
@@ -11,23 +12,6 @@ router.get('/', auth, async (req, res) => {
     res.json(skills);
   } catch (error) {
     console.error('Get skills error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Get public skills (for frontend display)
-router.get('/public', async (req, res) => {
-  try {
-    // Get the admin user's skills for public display
-    const adminUser = await User.findOne({ username: process.env.ADMIN_USERNAME || 'admin' });
-    if (!adminUser) {
-      return res.status(404).json({ message: 'Admin user not found' });
-    }
-    
-    const skills = await Skill.find({ user: adminUser._id }).sort({ name: 1 });
-    res.json(skills);
-  } catch (error) {
-    console.error('Get public skills error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

@@ -1,3 +1,4 @@
+
 const express = require('express');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
@@ -46,20 +47,6 @@ const upload = multer({
     } else {
       cb(new Error('Unexpected field'));
     }
-  }
-});
-
-// Get public profile (for frontend display)
-router.get('/public', async (req, res) => {
-  try {
-    const adminUser = await User.findOne({ username: process.env.ADMIN_USERNAME || 'admin' }).select('-password');
-    if (!adminUser) {
-      return res.status(404).json({ message: 'Profile not found' });
-    }
-    res.json(adminUser);
-  } catch (error) {
-    console.error('Get public profile error:', error);
-    res.status(500).json({ message: 'Server error' });
   }
 });
 

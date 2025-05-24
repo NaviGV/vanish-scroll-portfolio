@@ -50,6 +50,40 @@ const ContactMessages: React.FC = () => {
     }
   };
 
+  const toggleStatus = async (id: string, currentStatus: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/contacts/${id}/toggle-status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token || ''
+        }
+      });
+      
+      if (response.ok) {
+        const updatedMessage = await response.json();
+        // Update local state
+        setMessages(messages.map(msg => 
+          msg._id === id ? updatedMessage : msg
+        ));
+        
+        toast({
+          title: "Status updated",
+          description: `Message marked as ${updatedMessage.status}`
+        });
+      } else {
+        throw new Error('Failed to update status');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Could not update message status",
+        variant: "destructive"
+      });
+    }
+  };
+
   const updateStatus = async (id: string, status: 'new' | 'responded' | 'completed') => {
     try {
       const token = localStorage.getItem('token');
@@ -63,9 +97,9 @@ const ContactMessages: React.FC = () => {
       });
       
       if (response.ok) {
-        const updatedMessage = await response.json();
+        // Update local state
         setMessages(messages.map(msg => 
-          msg._id === id ? updatedMessage : msg
+          msg._id === id ? { ...msg, status } : msg
         ));
         
         toast({
@@ -94,46 +128,6 @@ const ContactMessages: React.FC = () => {
         return <Badge className="bg-green-500">Completed</Badge>;
       default:
         return <Badge>Unknown</Badge>;
-    }
-  };
-
-  const getStatusButtons = (message: ContactMessage) => {
-    switch (message.status) {
-      case 'new':
-        return (
-          <>
-            <Button 
-              variant="outline" 
-              onClick={() => updateStatus(message._id, 'responded')}
-            >
-              Mark as Responded
-            </Button>
-            <Button 
-              onClick={() => updateStatus(message._id, 'completed')}
-            >
-              Mark as Completed
-            </Button>
-          </>
-        );
-      case 'responded':
-        return (
-          <Button 
-            onClick={() => updateStatus(message._id, 'completed')}
-          >
-            Mark as Completed
-          </Button>
-        );
-      case 'completed':
-        return (
-          <Button 
-            variant="outline"
-            onClick={() => updateStatus(message._id, 'responded')}
-          >
-            Mark as Incomplete
-          </Button>
-        );
-      default:
-        return null;
     }
   };
 
@@ -172,12 +166,9 @@ const ContactMessages: React.FC = () => {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-lg mb-2">{message.subject}</CardTitle>
-                    <CardDescription>
-                      <div className="space-y-1">
-                        <div><strong>Name:</strong> {message.name}</div>
-                        <div><strong>Email:</strong> {message.email}</div>
-                      </div>
+                    <CardTitle>{message.subject}</CardTitle>
+                    <CardDescription className="mt-2">
+                      From: {message.name} ({message.email})
                     </CardDescription>
                   </div>
                   <div className="flex flex-col items-end">
@@ -190,14 +181,24 @@ const ContactMessages: React.FC = () => {
               </CardHeader>
               
               <CardContent>
-                <div>
-                  <strong>Message:</strong>
-                  <p className="whitespace-pre-wrap mt-2">{message.message}</p>
-                </div>
+                <p className="whitespace-pre-wrap">{message.message}</p>
               </CardContent>
               
               <CardFooter className="flex justify-end space-x-2">
-                {getStatusButtons(message)}
+                {message.status !== 'responded' && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => updateStatus(message._id, 'responded')}
+                  >
+                    Mark as Responded
+                  </Button>
+                )}
+                
+                <Button 
+                  onClick={() => toggleStatus(message._id, message.status)}
+                >
+                  {message.status === 'completed' ? 'Mark as Incomplete' : 'Mark as Completed'}
+                </Button>
               </CardFooter>
             </Card>
           ))}
