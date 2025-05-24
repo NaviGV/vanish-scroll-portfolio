@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -139,9 +140,9 @@ const Projects: React.FC = () => {
                 
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl h-[40px] overflow-hidden text-ellipsis">{project.title}</CardTitle>
-                  <div className="flex flex-wrap gap-2 mt-3 min-h-[60px]">
+                  <div className="grid grid-cols-2 gap-2 mt-3 min-h-[80px]">
                     {project.tags.map((tag, i) => (
-                      <Badge key={i} variant="secondary" className="bg-primary/20 hover:bg-primary/30 mb-1">{tag}</Badge>
+                      <Badge key={i} variant="secondary" className="bg-primary/20 hover:bg-primary/30 text-center justify-center text-sm py-1">{tag}</Badge>
                     ))}
                   </div>
                 </CardHeader>

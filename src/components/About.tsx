@@ -9,7 +9,7 @@ const About = () => {
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">About Me</h2>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <div className="space-y-6">
               <p className="text-lg leading-relaxed">
                 I'm a passionate software developer with a love for creating innovative web applications. 
@@ -36,9 +36,27 @@ const About = () => {
               </div>
             </div>
             
-            <div>
-              <h3 className="text-2xl font-semibold mb-6">Skills & Expertise</h3>
-              <Skills />
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-2xl font-semibold mb-6">Skills & Expertise</h3>
+                <Skills />
+              </div>
+              
+              <div>
+                <h3 className="text-2xl font-semibold mb-6">Education</h3>
+                <div className="space-y-4">
+                  <div className="bg-card p-4 rounded-lg border">
+                    <h4 className="font-semibold text-lg">Bachelor of Computer Science</h4>
+                    <p className="text-muted-foreground">University of Technology</p>
+                    <p className="text-sm text-muted-foreground">2018 - 2022</p>
+                  </div>
+                  <div className="bg-card p-4 rounded-lg border">
+                    <h4 className="font-semibold text-lg">Full Stack Development Certification</h4>
+                    <p className="text-muted-foreground">Tech Academy</p>
+                    <p className="text-sm text-muted-foreground">2022</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
