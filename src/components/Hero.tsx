@@ -1,89 +1,91 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { cn } from "@/lib/utils";
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import { ArrowDown } from "lucide-react";
+import { useProfile } from '@/contexts/ProfileContext';
 
 const Hero: React.FC = () => {
-  const [scrolled, setScrolled] = useState(false);
-  const profileRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const { profile, loading } = useProfile();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      const viewportHeight = window.innerHeight;
-      
-      // Begin fading out at 10% of viewport height and complete by 50%
-      const fadeOutThreshold = viewportHeight * 0.1;
-      const fadeOutComplete = viewportHeight * 0.5;
-      
-      if (scrollPosition > fadeOutThreshold) {
-        const opacity = 1 - (scrollPosition - fadeOutThreshold) / (fadeOutComplete - fadeOutThreshold);
-        if (profileRef.current) {
-          profileRef.current.style.opacity = Math.max(0, opacity).toString();
-          profileRef.current.style.transform = `translateY(${scrollPosition * 0.2}px)`;
-        }
-        
-        if (scrollPosition > fadeOutComplete) {
-          setScrolled(true);
-        } else {
-          setScrolled(false);
-        }
-      } else {
-        if (profileRef.current) {
-          profileRef.current.style.opacity = '1';
-          profileRef.current.style.transform = 'translateY(0)';
-        }
-        setScrolled(false);
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleDownloadResume = () => {
+    if (profile.resumeUrl) {
+      window.open(profile.resumeUrl, '_blank');
+    }
+  };
 
   return (
-    <section id="home" className="min-h-screen flex flex-col justify-center items-center relative pt-16 overflow-hidden">
-      <div className="container mx-auto px-8 md:px-12 lg:px-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center">
-          <div 
-            ref={profileRef} 
-            className="profile-container mx-auto md:mx-0 md:ml-auto order-1 md:order-2 transition-all duration-500"
-          >
-            <div className="dynamic-circle profile-circle-1 animate-spin-slow"></div>
-            <div className="dynamic-circle profile-circle-2 animate-spin-slow animation-delay-200" style={{ animationDirection: 'reverse' }}></div>
-            <div className="dynamic-circle profile-circle-3 animate-pulse-gentle"></div>
-            <div className="relative z-10 w-64 h-64 mx-auto overflow-hidden rounded-full border-4 border-primary/30">
-              <img 
-                src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                alt="Developer" 
-                className="w-full h-full object-cover"
-              />
-            </div>
+    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/30 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-20 left-20 w-32 h-32 bg-primary rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-20 w-48 h-48 bg-purple-500 rounded-full blur-xl animate-pulse animation-delay-200"></div>
+        <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-blue-500 rounded-full blur-xl animate-pulse animation-delay-400"></div>
+      </div>
+
+      <div className="container mx-auto px-4 text-center relative z-10">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
+            Hi, I'm{' '}
+            <span className="text-gradient">
+              {loading ? 'Loading...' : profile.name}
+            </span>
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-muted-foreground mb-4">
+            {profile.role}
+          </p>
+          
+          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+            Welcome to my digital space where creativity meets functionality. 
+            I craft beautiful, responsive, and user-friendly web applications.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <Button 
+              size="lg" 
+              className="bg-primary hover:bg-primary/90 text-white px-8 py-3"
+              onClick={() => scrollToSection('projects')}
+            >
+              View My Work
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="border-primary text-primary hover:bg-primary hover:text-white px-8 py-3"
+              onClick={() => scrollToSection('contact')}
+            >
+              Get In Touch
+            </Button>
+            
+            {profile.resumeUrl && (
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="border-secondary text-secondary hover:bg-secondary hover:text-white px-8 py-3"
+                onClick={handleDownloadResume}
+              >
+                Resume
+              </Button>
+            )}
           </div>
           
-          <div className="text-center md:text-left md:ml-4 order-2 md:order-1 space-y-4">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold break-words hyphens-auto">
-              <span>Hi, I'm </span>
-              <span className="text-gradient">John Doe</span>
-            </h1>
-            <h2 className="text-2xl md:text-3xl font-medium text-muted-foreground">Software Developer</h2>
-            <p className="text-lg max-w-lg mx-auto md:mx-0 mt-2">
-              Passionate about crafting clean, user-friendly web applications with cutting-edge technologies.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center md:justify-start mt-4">
-              <a 
-                href="#contact"
-                className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-              >
-                Contact Me
-              </a>
-              <a 
-                href="#projects"
-                className="px-6 py-3 border border-primary/50 text-foreground rounded-md hover:bg-primary/10 transition-colors"
-              >
-                View Projects
-              </a>
-            </div>
+          <div className="animate-bounce">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="rounded-full p-3"
+              onClick={() => scrollToSection('about')}
+            >
+              <ArrowDown className="h-6 w-6" />
+            </Button>
           </div>
         </div>
       </div>
